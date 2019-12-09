@@ -132,8 +132,14 @@ namespace Cyberfuck
             // Move the Camera to the position that it needs to go
             var delta = gameTime.ElapsedGameTime.TotalSeconds;
 
-            _position.X += (int)((Focus.Position.X - Position.X) * MoveSpeed * delta);
-            _position.Y += (int)((Focus.Position.Y - Position.Y) * MoveSpeed * delta);
+            if(Position.X < Focus.Position.X - 64)
+                _position.X = Focus.Position.X - 64;
+            if(Position.X > Focus.Position.X + 64)
+                _position.X = Focus.Position.X + 64;
+            if(Position.Y < Focus.Position.Y - 64)
+                _position.Y = Focus.Position.Y - 64;
+            if(Position.Y > Focus.Position.Y + 64)
+                _position.Y = Focus.Position.Y + 64;
 
             base.Update(gameTime);
         }

@@ -17,9 +17,9 @@ namespace Cyberfuck
         IBox box;
         int gravity = 1;
 
-        public Point Position { get => new Point((int)box.Bounds.X, (int)box.Bounds.Y); }
-        public Vector2 PositionV { get => new Vector2(box.Bounds.X, box.Bounds.Y); }
-        public Rectangle Bounds { get => new Rectangle((int)box.Bounds.X, (int)box.Bounds.Y, (int)box.Bounds.Width, (int)box.Bounds.Height);  }
+        public Point Position { get => new Point((int)box.X, (int)box.Y); }
+        public Vector2 PositionV { get => new Vector2(box.X, box.Y); }
+        public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height);  }
         public Vector2 Velocity { get => velocity; set => velocity = value; }
 
         public override void Initialize()
@@ -44,17 +44,15 @@ namespace Cyberfuck
         {
             float velX = Velocity.X;
             float velY = Velocity.Y;
-            velY += gravity;
+            if(velY < 8)
+                velY += gravity;
             if (Input.IsKeyDown(Keys.Right))
                 velX = 8;
             else if (Input.IsKeyDown(Keys.Left))
                 velX = -8;
             else
                 velX = 0;
-            if (Input.KeyWentDown(Keys.Space))
-                velY = -20;
-            Velocity = new Vector2(velX, velY);
-            ICamera2D camera = Game.Services.GetService(typeof(ICamera2D)) as ICamera2D;
+
             var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
             {
                 if (collision.Other.HasTag(Collider.Tile))
@@ -64,10 +62,21 @@ namespace Cyberfuck
                 return CollisionResponses.Cross;
             });
 
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0)))
+            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y > 0)))
             {
-                velocity.Y = 0;
+                velY = 0;
             }
+            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X > 0 || c.Normal.X < 0)))
+            {
+                velX = 0;
+            }
+            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            {
+                velY = 0;
+                if (Input.IsKeyDown(Keys.Space))
+                    velY = -20;
+            }
+            Velocity = new Vector2(velX, velY);
         }
     }
 }
