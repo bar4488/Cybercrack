@@ -44,7 +44,7 @@ namespace Cyberfuck
 		{
 			camera = new Camera2D();
 			Player player = new Player();
-			World world = new World();
+			WorldMap world = new WorldMap();
 			Components.Add(camera);
 			camera.Focus = player;
 			Components.Add(world);

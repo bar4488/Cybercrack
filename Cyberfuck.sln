@@ -1,9 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberfuck", "Cyberfuck\Cyberfuck.csproj", "{F49E95DA-50E3-4E4A-A820-03AF20149CB3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FNA", "FNA\FNA.csproj", "{35253CE1-C864-4CD3-8249-4D1319748E8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Humper", "Humper\Humper.csproj", "{1DD7D455-8710-44A5-B275-8606EB78D80E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,8 +33,19 @@ Global
 		{35253CE1-C864-4CD3-8249-4D1319748E8F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{35253CE1-C864-4CD3-8249-4D1319748E8F}.Release|x86.ActiveCfg = Release|Any CPU
 		{35253CE1-C864-4CD3-8249-4D1319748E8F}.Release|x86.Build.0 = Release|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Debug|x86.Build.0 = Debug|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Release|x86.ActiveCfg = Release|Any CPU
+		{1DD7D455-8710-44A5-B275-8606EB78D80E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07102DB2-AED5-481B-9FB0-455D9A5266BF}
 	EndGlobalSection
 EndGlobal
