@@ -7,12 +7,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Cyberfuck
 {
-    public interface IFocusable
+    interface IFocusable
     {
         Point Position { get; }
     }
 
-    public interface ICamera2D
+    interface ICamera2D
     {
         /// <summary>
         /// Gets or sets the position of the camera
@@ -79,15 +79,11 @@ namespace Cyberfuck
         bool IsInView(Point position, Texture2D texture);
     }
 
-    public class Camera2D : GameComponent, ICamera2D
+    class Camera2D : GameObject, ICamera2D
     {
         private Point _position;
         protected float _viewportHeight;
         protected float _viewportWidth;
-
-        public Camera2D(Game game)
-            : base(game)
-        { }
 
         #region Properties
 

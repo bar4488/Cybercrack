@@ -13,8 +13,16 @@ namespace Cyberfuck
 	class CyberfuckGame : Game
 	{
 		GraphicsDeviceManager graphics;
+        static CyberfuckGame instance;
 
-		public CyberfuckGame()
+        public static CyberfuckGame GetInstance()
+        {
+            if (instance == null)
+                instance = new CyberfuckGame();
+            return instance;
+        }
+
+		private CyberfuckGame()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			graphics.PreferredBackBufferWidth = 1280;
@@ -34,9 +42,9 @@ namespace Cyberfuck
 
 		protected override void Initialize()
 		{
-			camera = new Camera2D(this);
-			Player player = new Player(this);
-			World world = new World(this);
+			camera = new Camera2D();
+			Player player = new Player();
+			World world = new World();
 			Components.Add(camera);
 			camera.Focus = player;
 			Components.Add(world);
@@ -48,7 +56,7 @@ namespace Cyberfuck
 		{
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			Camera2D camera = new Camera2D(this);
+			Camera2D camera = new Camera2D();
 			Services.AddService(typeof(SpriteBatch), spriteBatch);
 			exampleEffect = new Effect(GraphicsDevice, File.ReadAllBytes(@"Effects/ExampleEffect.fxb"));
 

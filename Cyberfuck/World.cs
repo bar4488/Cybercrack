@@ -14,7 +14,7 @@ namespace Cyberfuck
         Grass,
         None,
     }
-    class World: DrawableGameComponent
+    class World: DrawableGameObject
     {
         System.Drawing.Bitmap worldMap;
         Texture2D smiley;
@@ -30,7 +30,7 @@ namespace Cyberfuck
             return Tile.None;
         }
 
-        public World(Game game): base(game)
+        public World()
         {
             this.worldMap = new System.Drawing.Bitmap(@"Content/Level1.png");
         }

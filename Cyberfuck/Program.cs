@@ -31,7 +31,7 @@ namespace Cyberfuck
 			//           <string>True</string>
 			Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 
-			using(CyberfuckGame game = new CyberfuckGame())
+			using(CyberfuckGame game = CyberfuckGame.GetInstance())
 			{
 				bool isHighDPI = Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1";
 				if(isHighDPI)
