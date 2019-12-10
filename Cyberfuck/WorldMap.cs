@@ -41,7 +41,7 @@ namespace Cyberfuck
         public WorldMap()
         {
             this.worldMap = new System.Drawing.Bitmap(@"Content/Level1.png");
-            world = new World(worldMap.Width * 16, worldMap.Height * 16);
+            world = new World(worldMap.Width * Constants.TILE_SIZE, worldMap.Height * Constants.TILE_SIZE);
             Game.Services.AddService(typeof(World), world);
             for(int x = 0; x < worldMap.Width; x++)
             {
@@ -49,7 +49,7 @@ namespace Cyberfuck
                 {
                     if ((uint)worldMap.GetPixel(x, y).ToArgb() == 0xFF000000)
                     {
-                        world.Create(x * 16, y * 16, 16, 16).AddTags(Collider.Tile);
+                        world.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
                     }
 
                 }
@@ -69,7 +69,7 @@ namespace Cyberfuck
                 for(int y = 0; y < worldMap.Height; y++)
                 {
                     if (GetTile(x,y) == Tile.Dirt)
-                        spriteBatch.Draw(smiley, new Rectangle(16 * x, 16 * y, 16, 16), new Rectangle(0, 0, smiley.Width, smiley.Height), Color.White);
+                        spriteBatch.Draw(smiley, new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, smiley.Width, smiley.Height), Color.White);
                 }
             }
         }

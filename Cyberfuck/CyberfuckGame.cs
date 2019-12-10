@@ -35,9 +35,6 @@ namespace Cyberfuck
 		}
 
 		SpriteBatch spriteBatch;
-		SpriteFont font;
-		Texture2D smile;
-		Effect exampleEffect;
         Camera2D camera;
 
 		protected override void Initialize()
@@ -56,9 +53,7 @@ namespace Cyberfuck
 		{
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
-			Camera2D camera = new Camera2D();
 			Services.AddService(typeof(SpriteBatch), spriteBatch);
-			exampleEffect = new Effect(GraphicsDevice, File.ReadAllBytes(@"Effects/ExampleEffect.fxb"));
 
 			base.LoadContent();
 		}
@@ -68,7 +63,6 @@ namespace Cyberfuck
 			Content.Unload();
 
 			spriteBatch.Dispose();
-			exampleEffect.Dispose();
 
 			base.UnloadContent();
 		}

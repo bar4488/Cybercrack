@@ -15,7 +15,11 @@ namespace Cyberfuck
         Vector2 velocity;
         Texture2D texture;
         IBox box;
-        int gravity = 1;
+        const int JUMP_VELOCITY = 24;
+        const int MAX_SPEED = 8;
+        const int FALL_SPEED = 12;
+        const int gravity = 1;
+        int jumpCount = 2;
 
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
         public Vector2 PositionV { get => new Vector2(box.X, box.Y); }
@@ -44,12 +48,12 @@ namespace Cyberfuck
         {
             float velX = Velocity.X;
             float velY = Velocity.Y;
-            if(velY < 8)
+            if(velY < FALL_SPEED)
                 velY += gravity;
             if (Input.IsKeyDown(Keys.Right))
-                velX = 8;
+                velX = MAX_SPEED;
             else if (Input.IsKeyDown(Keys.Left))
-                velX = -8;
+                velX = -MAX_SPEED;
             else
                 velX = 0;
 
@@ -62,19 +66,34 @@ namespace Cyberfuck
                 return CollisionResponses.Cross;
             });
 
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y > 0)))
+            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0)))
             {
                 velY = 0;
             }
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X > 0 || c.Normal.X < 0)))
+            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X != 0)))
             {
                 velX = 0;
             }
+            if (Input.KeyWentDown(Keys.Space))
+            {
+                if(jumpCount > 0)
+                {
+                    jumpCount--;
+                    velY = -JUMP_VELOCITY;
+                }
+            }
             if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
-                velY = 0;
+                jumpCount = 0;
                 if (Input.IsKeyDown(Keys.Space))
-                    velY = -20;
+                {
+                    velY = -JUMP_VELOCITY;
+                    jumpCount = 1;
+                }
+                if(move.Hits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && move.Hits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
+                {
+                    velY = -(float)Math.Sqrt(40 * gravity);
+                }
             }
             Velocity = new Vector2(velX, velY);
         }
