@@ -13,6 +13,21 @@
     <AssemblyName>Cyberfuck</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -64,18 +79,32 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Messaging" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetRebuild.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="CyberFuckGraphics.cs" />
+    <Compile Include="IEntity.cs" />
+    <Compile Include="EntityType.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="Logger\ConsoleLogger.cs" />
+    <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Network\Connection.cs" />
+    <Compile Include="Network\INetBase.cs" />
+    <Compile Include="Network\MessageType.cs" />
+    <Compile Include="Network\NetBase.cs" />
+    <Compile Include="Network\NetClient.cs" />
+    <Compile Include="Network\NetServer.cs" />
+    <Compile Include="Network\NetStatus.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="EntityData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CyberfuckGame.cs" />
-    <Compile Include="Rigidbody.cs" />
+    <Compile Include="CyberFuck.cs" />
+    <Compile Include="World.cs" />
     <Compile Include="WorldMap.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +124,13 @@
       <Name>Humper</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <MonoGamePlatform>Windows</MonoGamePlatform>

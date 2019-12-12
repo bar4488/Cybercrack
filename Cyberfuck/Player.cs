@@ -10,44 +10,43 @@ using Humper.Responses;
 
 namespace Cyberfuck
 {
-    class Player: DrawableGameObject, IFocusable
+    public class Player: IFocusable, IEntity
     {
-        Vector2 velocity;
-        Texture2D texture;
+        Point velocity;
         IBox box;
         const int JUMP_VELOCITY = 24;
         const int MAX_SPEED = 8;
         const int FALL_SPEED = 12;
         const int gravity = 1;
         int jumpCount = 2;
+        int id;
 
+        EntityData oldPlayer;
+
+        private Texture2D Texture { get => CyberFuck.textures["player"]; }
+        public EntityType Type { get => EntityType.Player; }
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
-        public Vector2 PositionV { get => new Vector2(box.X, box.Y); }
         public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height);  }
-        public Vector2 Velocity { get => velocity; set => velocity = value; }
+        public Point Velocity { get => velocity; set => velocity = value; }
 
-        public override void Initialize()
+        public int ID => id;
+
+        public Player(int id)
         {
-            base.Initialize();
-            Velocity = Vector2.Zero;
+            this.id = id;
+            Velocity = Point.Zero;
+            box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width/2, 0, Texture.Width, Texture.Height);
+        }
+        public void Draw()
+        {
+            CyberFuck.spriteBatch.Draw(Texture, Bounds, Texture.Bounds, Color.White);
         }
 
-        protected override void LoadContent()
+        public void Update()
         {
-            texture = Game.Content.Load<Texture2D>("Gore_1005");
-            World world = Game.Services.GetService(typeof(World)) as World;
-            box = world.Create(world.Bounds.Width/2, 0, texture.Width, texture.Height);
-        }
-        public override void Draw(GameTime gameTime)
-        {
-            SpriteBatch spriteBatch = Game.Services.GetService(typeof(SpriteBatch)) as SpriteBatch;
-            spriteBatch.Draw(texture, Bounds, texture.Bounds, Color.White);
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            float velX = Velocity.X;
-            float velY = Velocity.Y;
+            oldPlayer = new EntityData(this);
+            int velX = Velocity.X;
+            int velY = Velocity.Y;
             if(velY < FALL_SPEED)
                 velY += gravity;
             if (Input.IsKeyDown(Keys.Right))
@@ -58,23 +57,21 @@ namespace Cyberfuck
                 velX = 0;
             if (Input.KeyWentDown(Keys.Space))
             {
+                if(jumpCount > 0)
+                {
                     jumpCount--;
                     velY = -JUMP_VELOCITY;
+                }
             }
 
             var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
             {
-                Console.WriteLine(collision.Goal);
-                Console.WriteLine(Position);
-                Console.WriteLine("V: {0}, {1}", velX, velY);
                 if (collision.Other.HasTag(Collider.Tile))
                 {
                     return CollisionResponses.Slide;
                 }
                 return CollisionResponses.Cross;
             });
-            if(move.HasCollided)
-                Console.WriteLine(Position);
             if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 velY = 0;
@@ -83,7 +80,6 @@ namespace Cyberfuck
             {
                 velX = 0;
             }
-            /*
             if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 jumpCount = 0;
@@ -94,11 +90,16 @@ namespace Cyberfuck
                 }
                 if(move.Hits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && move.Hits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
                 {
-                    velY = -(float)Math.Sqrt(40 * gravity);
+                    velY = -(int)Math.Sqrt(60 * gravity);
                 }
             }
-            */
-            Velocity = new Vector2(velX, velY);
+            Velocity = new Point(velX, velY);
+
+            if(oldPlayer != this)
+            {
+                CyberFuck.netPlay.SendMessage(Network.MessageType.PlayerUpdate, World.playerId, new EntityData(this));
+            }
         }
+
     }
 }

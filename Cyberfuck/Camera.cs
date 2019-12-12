@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Cyberfuck
 {
-    interface IFocusable
+    public interface IFocusable
     {
         Point Position { get; }
     }
@@ -79,7 +79,7 @@ namespace Cyberfuck
         bool IsInView(Point position, Texture2D texture);
     }
 
-    class Camera2D : GameObject, ICamera2D
+    public class Camera2D : ICamera2D
     {
         private Point _position;
         protected float _viewportHeight;
@@ -102,22 +102,18 @@ namespace Cyberfuck
 
         #endregion
 
-        /// <summary>
-        /// Called when the GameComponent needs to be initialized. 
-        /// </summary>
-        public override void Initialize()
+        public Camera2D()
         {
-            _viewportWidth = Game.GraphicsDevice.Viewport.Width;
-            _viewportHeight = Game.GraphicsDevice.Viewport.Height;
+            _viewportWidth = CyberFuck.graphics.GraphicsDevice.Viewport.Width;
+            _viewportHeight = CyberFuck.graphics.GraphicsDevice.Viewport.Height;
 
             ScreenCenter = new Point((int)_viewportWidth / 2, (int)_viewportHeight / 2);
             Scale = 1;
             MoveSpeed = 2;
 
-            base.Initialize();
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             // Create the Transform used by any
             // spritebatch process
@@ -133,15 +129,13 @@ namespace Cyberfuck
             var delta = gameTime.ElapsedGameTime.TotalSeconds;
 
             if(Position.X < Focus.Position.X - 64)
-                _position.X = Focus.Position.X - 64;
+                _position.X = (int)Focus.Position.X - 64;
             if(Position.X > Focus.Position.X + 64)
-                _position.X = Focus.Position.X + 64;
+                _position.X = (int)Focus.Position.X + 64;
             if(Position.Y < Focus.Position.Y - 64)
-                _position.Y = Focus.Position.Y - 64;
+                _position.Y = (int)Focus.Position.Y - 64;
             if(Position.Y > Focus.Position.Y + 64)
-                _position.Y = Focus.Position.Y + 64;
-
-            base.Update(gameTime);
+                _position.Y = (int)Focus.Position.Y + 64;
         }
 
         /// <summary>
