@@ -21,7 +21,7 @@ namespace Cyberfuck
         int jumpCount = 2;
         int id;
 
-        EntityData oldPlayer;
+        PlayerData oldPlayer;
 
         private Texture2D Texture { get => CyberFuck.textures["player"]; }
         public EntityType Type { get => EntityType.Player; }
@@ -44,7 +44,7 @@ namespace Cyberfuck
 
         public void Update()
         {
-            oldPlayer = new EntityData(this);
+            oldPlayer = new PlayerData(this);
             int velX = Velocity.X;
             int velY = Velocity.Y;
             if(velY < FALL_SPEED)
@@ -97,7 +97,7 @@ namespace Cyberfuck
 
             if(oldPlayer != this)
             {
-                CyberFuck.netPlay.SendMessage(Network.MessageType.PlayerUpdate, World.playerId, new EntityData(this));
+                CyberFuck.netPlay.SendMessage(Network.MessageType.PlayerUpdate, World.playerId, new PlayerData(this));
             }
         }
 

@@ -16,8 +16,9 @@ namespace Cyberfuck.Network
     class Connection
     {
         ConnectionState state;
-        TcpClient conn;
-        NetworkStream stream;
+        public TcpClient conn;
+        public NetworkStream stream;
+        public readonly int id;
 
         public bool Connected { get => state == ConnectionState.Connected; }
         public ConnectionState State { get => state; }
@@ -29,8 +30,9 @@ namespace Cyberfuck.Network
             stream = conn.GetStream();
             state = ConnectionState.Connected;
         }
-        public Connection()
+        public Connection(int id)
         {
+            this.id = id;
             state = ConnectionState.NotConnected;
         }
 

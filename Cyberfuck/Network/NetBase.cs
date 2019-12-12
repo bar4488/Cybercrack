@@ -9,45 +9,51 @@ namespace Cyberfuck.Network
     {
         public void SendMessage(MessageType messageType, int player, object data)
         {
-            byte[] msg = ProcessMessage(messageType, player, data);
+            byte[] msg = ProcessMessage(messageType, data);
             SendBuffer(msg, player);
         }
-        public byte[] ProcessMessage(MessageType messageType, int player, object data)
+        public byte[] ProcessMessage(MessageType type, object data)
         {
-            int messageLength = 0;
-            byte[] msgType = BitConverter.GetBytes((int)messageType);
-            messageLength += msgType.Length;
-            byte[] msgPlayer = BitConverter.GetBytes(player);
-            messageLength += msgPlayer.Length;
             byte[] msgContent;
-            switch (messageType)
+            switch (type)
             {
                 case MessageType.PlayerUpdate:
-                    messageLength += GetEntityDataBytes(out msgContent, (EntityData)data);
+                    msgContent = GetPlayerDataBytes((PlayerData)data);
+                    break;
+                case MessageType.EntityData:
+                    msgContent = GetEntityDataBytes((EntityData)data);
                     break;
                 default:
                     return null;
             }
-            byte[] msg = new byte[messageLength];
-            Buffer.BlockCopy(msgType, 0, msg, 0, msgType.Length);
-            Buffer.BlockCopy(msgPlayer, 0, msg, msgType.Length, msgPlayer.Length);
-            Buffer.BlockCopy(msgContent, 0, msg, msgType.Length + msgPlayer.Length, msgContent.Length);
-            return msg;
+            return WrapWithHeader(msgContent, type);
+        }
+        public static byte[] WrapWithHeader(byte[] msgContent, MessageType type)
+        {
+            int messageLength = msgContent.Length;
+            byte[] msgType = BitConverter.GetBytes((int)type);
+            messageLength += msgType.Length + sizeof(int);
+            byte[] msgLength = BitConverter.GetBytes(messageLength);
+            return ByteManipulation.ConcatByteArrays(msgLength, msgType, msgContent);
         }
 
         public abstract void SendBuffer(byte[] msg, int player);
 
-        public int GetEntityDataBytes(out byte[] msg, EntityData entityData)
+        public byte[] GetPlayerDataBytes(PlayerData playerData)
         {
+            return ByteManipulation.WrapWithInt(GetEntityDataBytes(playerData.Entity), playerData.ID);
+        }
+        public byte[] GetEntityDataBytes(EntityData entityData)
+        {
+            int type = (int)entityData.Type;
             int posX = entityData.Position.X;
             int posY = entityData.Position.Y;
             int velX = entityData.Velocity.X;
             int velY = entityData.Velocity.Y;
-            int type = (int)entityData.Type;
             int[] dataArr = new int[] { type, posX, posY, velX, velY};
-            msg = new byte[dataArr.Length * sizeof(int)];
+            byte[] msg = new byte[dataArr.Length * sizeof(int)];
             Buffer.BlockCopy(dataArr, 0, msg, 0, msg.Length);
-            return msg.Length;
+            return msg;
         }
         
         public abstract void Close();
