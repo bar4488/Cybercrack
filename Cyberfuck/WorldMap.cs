@@ -42,12 +42,13 @@ namespace Cyberfuck
         {
             this.worldMap = new System.Drawing.Bitmap(@"Content/Level1.png");
             world = new World(worldMap.Width * Constants.TILE_SIZE, worldMap.Height * Constants.TILE_SIZE);
+            
             Game.Services.AddService(typeof(World), world);
             for(int x = 0; x < worldMap.Width; x++)
             {
                 for(int y = 0; y < worldMap.Height; y++)
                 {
-                    if ((uint)worldMap.GetPixel(x, y).ToArgb() == 0xFF000000)
+                    if (GetTile(x, y) == Tile.Dirt)
                     {
                         world.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
                     }

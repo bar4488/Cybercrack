@@ -338,6 +338,7 @@
 
 		public bool IsNearest(IHit than, Vector2 origin)
 		{
+			/*
 			if (this.Amount < than.Amount)
 			{
 				return true;
@@ -346,6 +347,7 @@
 			{
 				return true;
 			}
+			*/
 
 			var thisDistance = (origin - this.Position).LengthSquared();
 			var otherDistance = (origin - than.Position).LengthSquared();
