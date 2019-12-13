@@ -68,14 +68,12 @@ namespace Cyberfuck.Screen
                 switch ((State)(ToState(state)))
                 {
                     case State.Host:
-                        CyberFuck.Screen = new ChooseWorldScreen((w) =>
+                        CyberFuck.Screen = new ChooseWorldScreen((string world) =>
                         {
-                            CyberFuck.Host(w);
+                            CyberFuck.Host(world);
                         });
-                        //CyberFuck.Host("Level10.png");
                         break;
                     case State.Join:
-                        //CyberFuck.Join("25.47.65.149", 1234);
                         CyberFuck.Screen = new JoinScreen();
                         break;
                     case State.Single:
@@ -91,6 +89,11 @@ namespace Cyberfuck.Screen
                         break;
                 }
             }
+        }
+
+        public void OnChooseWorld(string world)
+        {
+            CyberFuck.Host(world);
         }
     }
 }

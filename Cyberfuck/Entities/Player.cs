@@ -117,7 +117,8 @@ namespace Cyberfuck.Entities
                         }
                     }
                 }
-                if(move.Hits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && move.Hits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
+                IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
+                if(TileHits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && TileHits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
                 {
                     velY = -(int)Math.Sqrt(60 * gravity);
                 }

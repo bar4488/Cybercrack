@@ -16,8 +16,6 @@ namespace Cyberfuck.Screen
         int worldChoice = 0;
         List<string> worlds;
 
-        string ip = "127.0.0.1";
-        string port = "1234";
         public ChooseWorldScreen(OnWorldChosen callback)
         {
             this.onWorldChosen = callback;

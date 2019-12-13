@@ -51,6 +51,7 @@ namespace Cyberfuck
 
         public static void LoadEntities(List<EntityData> entities)
         {
+            entities.AddRange(entities);
         }
 
         public static void LoadPlayers(List<PlayerData> playersData)
