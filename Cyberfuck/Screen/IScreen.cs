@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Cyberfuck.Screen
 {
+    public delegate void OnClose();
     public interface IScreen
     {
-        delegate void OnClose();
         void Update(GameTime gameTime);
 
         void Draw(GameTime gameTime, SpriteBatch spriteBatch);

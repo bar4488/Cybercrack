@@ -26,7 +26,7 @@ namespace Cyberfuck.Screen
 			World.Draw(spriteBatch);
         }
 
-        public void Close(IScreen.OnClose callBack)
+        public void Close(OnClose callBack)
         {
             // close the game;
             callBack();

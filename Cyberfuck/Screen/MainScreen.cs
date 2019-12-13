@@ -21,7 +21,7 @@ namespace Cyberfuck.Screen
         {
 
         }
-        public void Close(IScreen.OnClose callback)
+        public void Close(OnClose callback)
         {
             callback();
         }
