@@ -15,5 +15,6 @@ namespace Cyberfuck.Data
         /// message containing data about entities in the world
         /// </summary>
         EntityData,
+
     }
 }

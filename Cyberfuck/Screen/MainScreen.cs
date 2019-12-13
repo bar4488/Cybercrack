@@ -56,7 +56,7 @@ namespace Cyberfuck.Screen
                         CyberFuck.Host("Level1");
                         break;
                     case State.Join:
-                        CyberFuck.Join("127.0.0.1", 1234);
+                        CyberFuck.Join("192.168.1.107", 1234);
                         break;
                     case State.Single:
                         CyberFuck.Start("Level1");

@@ -15,8 +15,8 @@ namespace Cyberfuck
         public static Humper.World collisionWorld;
         public static WorldMap map;
         public static Camera2D camera;
-        public static int playerId;
-        public static Player player { get => players[playerId]; }
+        public static int myPlayerId;
+        public static Player player { get => players[myPlayerId]; }
         public static Dictionary<int, Player> players = new Dictionary<int, Player>();
         public static List<IEntity> entities = new List<IEntity>();
 
@@ -28,11 +28,11 @@ namespace Cyberfuck
             collisionWorld = map.world;
             if(Network.NetStatus.Single || Network.NetStatus.Server)
             {
-                playerId = -1;
-                players[-1] = new Player(playerId);
+                myPlayerId = -1;
+                players[-1] = new Player(myPlayerId);
             }
             camera = new Camera2D();
-            camera.Focus = players[playerId];
+            camera.Focus = players[myPlayerId];
         }
         public static void LoadWorld(System.Drawing.Bitmap level)
         {
@@ -42,10 +42,10 @@ namespace Cyberfuck
             collisionWorld = map.world;
             if(Network.NetStatus.Single || Network.NetStatus.Server)
             {
-                playerId = -1;
-                players[-1] = new Player(playerId);
+                myPlayerId = -1;
+                players[-1] = new Player(myPlayerId);
                 camera = new Camera2D();
-                camera.Focus = players[playerId];
+                camera.Focus = players[myPlayerId];
             }
         }
 
@@ -62,21 +62,34 @@ namespace Cyberfuck
         }
         public static void LoadPlayer(PlayerData playerData, bool local)
         {
-            players[playerData.ID] = new Player(playerData);
-            if (local)
+            lock (players)
             {
-                playerId = playerData.ID;
-                camera = new Camera2D();
-                camera.Focus = players[playerId];
+                players[playerData.ID] = new Player(playerData);
+                if (local)
+                {
+                    myPlayerId = playerData.ID;
+                    camera = new Camera2D();
+                    camera.Focus = players[myPlayerId];
+                }
+            }
+        }
+        public static void RemovePlayer(int id)
+        {
+            lock (players)
+            {
+                players.Remove(id);
             }
         }
         public static void Update(GameTime gameTime)
         {
             if(!NetStatus.Single)
                 CyberFuck.netPlay.SnapShot();
-            foreach (var player in players.Values)
+            lock (players)
             {
-                player.Update();
+                foreach (var player in players.Values.ToArray())
+                {
+                    player.Update();
+                }
             }
             camera.Update(gameTime);
             if(!NetStatus.Single)
@@ -95,9 +108,12 @@ namespace Cyberfuck
 				camera.Transform
 			);
             map.Draw();
-            foreach (var player in players.Values)
+            lock (players)
             {
-                player.Draw();
+                foreach (var player in players.Values.ToArray())
+                {
+                    player.Draw();
+                }
             }
             spriteBatch.End();
         }

@@ -58,7 +58,7 @@ namespace Cyberfuck.Entities
             int velY = Velocity.Y;
             if(velY < FALL_SPEED)
                 velY += gravity;
-            if(ID == World.playerId)
+            if(ID == World.myPlayerId)
             {
                 if (Input.IsKeyDown(Keys.Right))
                     velX = MAX_SPEED;
@@ -95,7 +95,7 @@ namespace Cyberfuck.Entities
             if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 jumpCount = 3;
-                if(ID == World.playerId)
+                if(ID == World.myPlayerId)
                 {
                     if (Input.IsKeyDown(Keys.Space))
                     {
@@ -113,7 +113,7 @@ namespace Cyberfuck.Entities
             }
             Velocity = new Point(velX, velY);
 
-            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == World.playerId)))
+            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == World.myPlayerId)))
             {
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
             }

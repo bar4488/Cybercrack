@@ -69,5 +69,12 @@ namespace Cyberfuck.Network
             this.conn = conn;
             this.stream = conn.GetStream();
         }
+
+        public void Close()
+        {
+            this.Stream.Close();
+            this.conn.Close();
+            this.State = ConnectionState.NotConnected;
+        }
     }
 }

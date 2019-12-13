@@ -40,7 +40,15 @@ namespace Cyberfuck.Network
             {
                 if(clients[i].Connected && i != excluded)
                 {
-                    clients[i].Stream.Write(msg, 0, msg.Length);
+                    try
+                    {
+                        clients[i].Stream.Write(msg, 0, msg.Length);
+                    }
+                    catch(System.IO.IOException e)
+                    {
+                        clients[i].Close();
+                        World.RemovePlayer(i);
+                    }
                 }
             }
         }
