@@ -104,10 +104,6 @@ namespace Cyberfuck
 
         public Camera2D()
         {
-            _viewportWidth = CyberFuck.graphics.GraphicsDevice.Viewport.Width;
-            _viewportHeight = CyberFuck.graphics.GraphicsDevice.Viewport.Height;
-
-            ScreenCenter = new Point((int)_viewportWidth / 2, (int)_viewportHeight / 2);
             Scale = 1;
             MoveSpeed = 2;
 
@@ -115,6 +111,10 @@ namespace Cyberfuck
 
         public void Update(GameTime gameTime)
         {
+            _viewportWidth = CyberFuck.graphics.GraphicsDevice.Viewport.Width;
+            _viewportHeight = CyberFuck.graphics.GraphicsDevice.Viewport.Height;
+
+            ScreenCenter = new Point((int)_viewportWidth / 2, (int)_viewportHeight / 2);
             // Create the Transform used by any
             // spritebatch process
             Transform = Matrix.Identity *

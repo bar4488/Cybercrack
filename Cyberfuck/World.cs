@@ -10,7 +10,7 @@ using Cyberfuck.Network;
 
 namespace Cyberfuck
 {
-    class World
+    static class World
     {
         public static Humper.World collisionWorld;
         public static WorldMap map;
@@ -88,15 +88,15 @@ namespace Cyberfuck
             {
                 foreach (var player in players.Values.ToArray())
                 {
-                    player.Update();
+                    player.Update(gameTime);
                 }
             }
             camera.Update(gameTime);
             if(!NetStatus.Single)
-                CyberFuck.netPlay.Update();
+                CyberFuck.netPlay.Update(gameTime);
         }
 
-        public static void Draw(SpriteBatch spriteBatch)
+        public static void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 			spriteBatch.Begin(
 				SpriteSortMode.Deferred,
@@ -107,12 +107,12 @@ namespace Cyberfuck
 				null,
 				camera.Transform
 			);
-            map.Draw();
+            map.Draw(gameTime);
             lock (players)
             {
                 foreach (var player in players.Values.ToArray())
                 {
-                    player.Draw();
+                    player.Draw(gameTime);
                 }
             }
             spriteBatch.End();

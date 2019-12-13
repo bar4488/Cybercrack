@@ -14,13 +14,19 @@ namespace Cyberfuck.Screen
         {
             Host,
             Join,
-            Single
+            Single,
+            Quit
         }
-        State state = State.Host;
+        int state = Enum.GetValues(typeof(State)).Length * 100000;
         public MainScreen()
         {
 
         }
+        public int ToState(int num)
+        {
+            return num % Enum.GetValues(typeof(State)).Length;
+        }
+
         public void Close(OnClose callback)
         {
             callback();
@@ -29,9 +35,12 @@ namespace Cyberfuck.Screen
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.Begin();
-            spriteBatch.DrawString(CyberFuck.font, "Host", new Vector2(CenterX("Host"), CyberFuck.graphics.GraphicsDevice.Viewport.Height / 2 - 70), state == State.Host ? Color.Red : Color.Black, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
-            spriteBatch.DrawString(CyberFuck.font, "Join", new Vector2(CenterX("Join"), CyberFuck.graphics.GraphicsDevice.Viewport.Height / 2), state == State.Join ? Color.Red : Color.Black, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
-            spriteBatch.DrawString(CyberFuck.font, "Single", new Vector2(CenterX("Single"), CyberFuck.graphics.GraphicsDevice.Viewport.Height / 2 + 70), state == State.Single ? Color.Red : Color.Black, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
+            int count = 0;
+            foreach (var value in Enum.GetValues(typeof(State)))
+            {
+                spriteBatch.DrawString(CyberFuck.font, value.ToString(), new Vector2(CenterX(value.ToString()), CyberFuck.graphics.GraphicsDevice.Viewport.Height / 2 -70 + count * 70), ToState(state) == (int)value ? Color.Red : Color.Black, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
+                count++;
+            }
             spriteBatch.End();
         }
 
@@ -44,22 +53,30 @@ namespace Cyberfuck.Screen
         public void Update(GameTime gameTime)
         {
             if (Input.KeyWentDown(Keys.Up))
-                state = state > 0 ? state - 1 : state;
+                state--;
             if (Input.KeyWentDown(Keys.Down))
-                state = (int)state < 2 ? state + 1 : state;
+                state++;
 
             if (Input.KeyWentDown(Keys.Enter))
             {
-                switch (state)
+                switch ((State)(ToState(state)))
                 {
                     case State.Host:
-                        CyberFuck.Host("Level1");
+                        CyberFuck.Screen = new ChooseWorldScreen((w) =>
+                        {
+                            CyberFuck.Host(w);
+                        });
+                        //CyberFuck.Host("Level10.png");
                         break;
                     case State.Join:
-                        CyberFuck.Join("192.168.1.107", 1234);
+                        //CyberFuck.Join("25.47.65.149", 1234);
+                        CyberFuck.Screen = new JoinScreen();
                         break;
                     case State.Single:
-                        CyberFuck.Start("Level1");
+                        CyberFuck.Start("Level10.png");
+                        break;
+                    case State.Quit:
+                        CyberFuck.instance.Exit();
                         break;
                     default:
                         break;

@@ -22,6 +22,7 @@ namespace Cyberfuck.Entities
         const int gravity = 1;
         int jumpCount = 2;
         int id;
+        bool directionRight = true;
 
         PlayerData oldPlayer;
 
@@ -46,12 +47,13 @@ namespace Cyberfuck.Entities
             this.Velocity = playerData.Entity.Velocity;
             this.box = World.collisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
         }
-        public void Draw()
+        public void Draw(GameTime gameTime)
         {
-            CyberFuck.spriteBatch.Draw(Texture, Bounds, Texture.Bounds, Color.White);
+            float scale = (float)Math.Sin(gameTime.TotalGameTime.Ticks / 240);
+            CyberFuck.spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             oldPlayer = new PlayerData(this);
             int velX = Velocity.X;
@@ -60,10 +62,14 @@ namespace Cyberfuck.Entities
                 velY += gravity;
             if(ID == World.myPlayerId)
             {
-                if (Input.IsKeyDown(Keys.Right))
+                if (Input.IsKeyDown(Keys.Right) || Input.IsKeyDown(Keys.D))
+                {
                     velX = MAX_SPEED;
-                else if (Input.IsKeyDown(Keys.Left))
+                }
+                else if (Input.IsKeyDown(Keys.Left) || Input.IsKeyDown(Keys.A))
+                {
                     velX = -MAX_SPEED;
+                }
                 else
                     velX = 0;
                 if (Input.KeyWentDown(Keys.Space))
@@ -74,6 +80,10 @@ namespace Cyberfuck.Entities
                         velY = -JUMP_VELOCITY;
                     }
                 }
+                if (velX > 0)
+                    directionRight = true;
+                if (velX < 0)
+                    directionRight = false;
             }
 
             var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>

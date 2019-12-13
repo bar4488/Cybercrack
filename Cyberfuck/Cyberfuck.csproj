@@ -87,6 +87,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
+    <Compile Include="Data\RemovePlayerData.cs" />
     <Compile Include="Data\ServerSnapshot.cs" />
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />
@@ -94,6 +95,9 @@
     <Compile Include="Logger\ConsoleLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Data\ByteManipulation.cs" />
+    <Compile Include="Screen\ChooseWorldScreen.cs" />
+    <Compile Include="Screen\JoinScreen.cs" />
+    <Compile Include="Logger\ScreenLogger.cs" />
     <Compile Include="Network\Connection.cs" />
     <Compile Include="Data\IMessageContent.cs" />
     <Compile Include="Network\INetBase.cs" />

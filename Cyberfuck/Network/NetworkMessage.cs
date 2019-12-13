@@ -46,6 +46,11 @@ namespace Cyberfuck.Network
             byte[] bytesContentLength = BitConverter.GetBytes(message.ContentLength);
             return ByteManipulation.ConcatByteArrays(start, bytesContentLength, msgType, message.Content);
         }
+        public static byte[] EmptyMessage(MessageContentType type)
+        {
+            byte[] b = new byte[0];
+            return WrapWithHeader(b, type);
+        }
         public static byte[] WrapWithHeader(byte[] msgContent, MessageContentType type)
         {
             int messageLength = msgContent.Length;

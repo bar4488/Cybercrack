@@ -51,11 +51,20 @@ namespace Cyberfuck.Network
                 // then decoding the message content to the appropriate data and process it.
                 switch (message.Type)
                 {
-                    case Data.MessageContentType.PlayerUpdate:
+                    case MessageContentType.PlayerUpdate:
                         PlayerData playerData = PlayerData.Decode(message.Content);
-                        World.players[playerData.ID].Apply(playerData);
+                        if(World.players.ContainsKey(playerData.ID))
+                            World.players[playerData.ID].Apply(playerData);
+                        else
+                        {
+                            World.LoadPlayer(playerData, false);
+                        }
                         break;
-                    case Data.MessageContentType.EntityData:
+                    case MessageContentType.EntityData:
+                        break;
+                    case MessageContentType.RemovePlayer:
+                        RemovePlayerData data = RemovePlayerData.Decode(message.Content);
+                        World.RemovePlayer(data.playerId);
                         break;
                     default:
                         break;
@@ -72,8 +81,8 @@ namespace Cyberfuck.Network
 
         public void Close()
         {
-            this.Stream.Close();
-            this.conn.Close();
+            this.Stream?.Close();
+            this.conn?.Close();
             this.State = ConnectionState.NotConnected;
         }
     }

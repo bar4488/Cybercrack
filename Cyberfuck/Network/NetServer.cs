@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Cyberfuck.Entities;
 using Cyberfuck.Data;
+using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network
 {
@@ -48,6 +49,7 @@ namespace Cyberfuck.Network
                     {
                         clients[i].Close();
                         World.RemovePlayer(i);
+                        SendMessage(MessageContentType.RemovePlayer, -1, new RemovePlayerData(i));
                     }
                 }
             }
@@ -60,16 +62,16 @@ namespace Cyberfuck.Network
 
         public override void Close()
         {
+            base.Close();
             listener.Stop();
             foreach (var client in clients)
             {
-                client.stream.Close();
-                client.conn.Close();
+                client.Close();
             }
             connected = false;
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
             // send data to clients based on the difference between this snapshot and the previous one
             ServerSnapshot snapshot = ServerSnapshot.Snapshot();
@@ -101,27 +103,33 @@ namespace Cyberfuck.Network
             CyberFuck.Logger.Log("listening for connections...");
             while (connected)
             {
-                TcpClient client = listener.AcceptTcpClient();
-                lock (clients)
+                try
                 {
-                    if(NetStatus.playersCount < MaxClients)
+                    TcpClient client = listener.AcceptTcpClient();
+                    lock (clients)
                     {
-                        for (int i = 0; i < MaxClients; i++)
+                        if(NetStatus.playersCount < MaxClients)
                         {
-                            if (!clients[i].Connected)
+                            for (int i = 0; i < MaxClients; i++)
                             {
-                                clients[i].Reset(client);
-                                // put the client in initialization state and start initializing in another thread
-                                ThreadPool.QueueUserWorkItem(new WaitCallback(InitializeClientConnection), clients[i]);
-                                //NetStatus.playersCount++;
-                                break;
+                                if (!clients[i].Connected)
+                                {
+                                    clients[i].Reset(client);
+                                    // put the client in initialization state and start initializing in another thread
+                                    ThreadPool.QueueUserWorkItem(new WaitCallback(InitializeClientConnection), clients[i]);
+                                    break;
+                                }
                             }
                         }
+                        else
+                        {
+                            //TODO: send to client that the server is full
+                        }
                     }
-                    else
-                    {
-                        //TODO: send to client that the server is full
-                    }
+                }
+                catch (SocketException)
+                {
+                    connected = false;
                 }
             }
         }

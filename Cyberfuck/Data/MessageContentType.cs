@@ -15,6 +15,14 @@ namespace Cyberfuck.Data
         /// message containing data about entities in the world
         /// </summary>
         EntityData,
+        /// <summary>
+        /// broadcast from the server to indicate that a player has left
+        /// </summary>
+        RemovePlayer,
+        /// <summary>
+        /// notify when the server or the client are closing their connection
+        /// </summary>
+        CloseConnection,
 
     }
 }

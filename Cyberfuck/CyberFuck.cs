@@ -21,15 +21,16 @@ namespace Cyberfuck
 		public static INetBase netPlay;
 		public static IScreen Screen;
 		private static ILogger logger = new ConsoleLogger();
+		public static CyberFuck instance;
 
 		public static ILogger Logger { get => logger; set => logger = value; }
 
 		public CyberFuck()
 		{
+			instance = this;
 			InitializeGraphics();
 			Content.RootDirectory = "Content";
 		}
-
 
 		protected override void Initialize()
 		{
@@ -41,7 +42,7 @@ namespace Cyberfuck
 		public static void Start(string level)
 		{
 			NetStatus.Type = NetType.Single;
-			Screen = new GameScreen();
+			Screen = new GameScreen(level);
 		}
 		public static void Join(string ip, int port)
 		{
@@ -52,7 +53,7 @@ namespace Cyberfuck
 		{
 			NetStatus.Type = NetType.Server;
 			if (!(Screen is GameScreen))
-				Screen = new GameScreen();
+				Screen = new GameScreen(level);
 			netPlay = new NetServer(1234);
 		}
 		protected override void Update(GameTime gameTime)
@@ -67,10 +68,6 @@ namespace Cyberfuck
 					UnloadContent();
 					LoadContent();
 				}
-			}
-			if(Input.KeyWentDown(Keys.Escape))
-			{
-				this.Exit();
 			}
 #endif
 			Screen.Update(gameTime);

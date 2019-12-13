@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Drawing;
 using Cyberfuck.Screen;
+using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network
 {
@@ -103,11 +104,12 @@ namespace Cyberfuck.Network
         }
         public override void Close()
         {
+            base.Close();
             server.stream.Close();
             server.conn.Close();
             server.State = ConnectionState.NotConnected;
         }
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
             ClientSnapshot snapshot = ClientSnapshot.SnapShot();
             if(previousSnapshot.playerData != snapshot.playerData)

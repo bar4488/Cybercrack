@@ -28,6 +28,7 @@ namespace Cyberfuck
 			spriteBatch = new SpriteBatch(GraphicsDevice);
             textures.Add("player", Content.Load<Texture2D>("Gore_1005"));
 			textures.Add("tileDirt", Content.Load<Texture2D>(@"Dirt"));
+			textures.Add("background", Content.Load<Texture2D>(@"game_background"));
 			font = Content.Load<SpriteFont>("Font");
 			base.LoadContent();
 		}

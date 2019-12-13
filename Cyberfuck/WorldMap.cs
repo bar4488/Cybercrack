@@ -59,10 +59,10 @@ namespace Cyberfuck
                 }
             }
         }
-        public WorldMap(string level = "Level1.png"): this(new System.Drawing.Bitmap(@"Content/" + level))
+        public WorldMap(string level = "Level1.png"): this(new System.Drawing.Bitmap(@"Content/Levels/" + level))
         {
         }
-        public void Draw()
+        public void Draw(GameTime gameTime)
         {
             int width = CyberFuck.graphics.GraphicsDevice.Viewport.Width;
             int height = CyberFuck.graphics.GraphicsDevice.Viewport.Height;

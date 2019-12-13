@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cyberfuck.Data;
+using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network
 {
@@ -15,7 +16,7 @@ namespace Cyberfuck.Network
     public interface INetBase
     {
         void SendMessage(MessageContentType messageType, int player, IMessageContent data);
-        void Update();
+        void Update(GameTime gameTime);
         void Close();
         void SnapShot();
     }
