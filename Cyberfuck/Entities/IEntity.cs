@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 
-namespace Cyberfuck
+namespace Cyberfuck.Entities
 {
     public interface IEntity
     {

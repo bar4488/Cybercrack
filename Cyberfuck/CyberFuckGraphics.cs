@@ -28,6 +28,7 @@ namespace Cyberfuck
 			spriteBatch = new SpriteBatch(GraphicsDevice);
             textures.Add("player", Content.Load<Texture2D>("Gore_1005"));
 			textures.Add("tileDirt", Content.Load<Texture2D>(@"Dirt"));
+			font = Content.Load<SpriteFont>("Font");
 			base.LoadContent();
 		}
 
@@ -48,7 +49,7 @@ namespace Cyberfuck
 
 		protected override void Draw(GameTime gameTime)
 		{
-			World.Draw(spriteBatch);
+			Screen.Draw(gameTime, spriteBatch);
 		}
 
 		protected override void EndDraw()

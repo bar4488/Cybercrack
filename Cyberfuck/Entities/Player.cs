@@ -7,8 +7,10 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Humper;
 using Humper.Responses;
+using Cyberfuck.Network;
+using Cyberfuck.Data;
 
-namespace Cyberfuck
+namespace Cyberfuck.Entities
 {
     public class Player: IFocusable, IEntity
     {
@@ -37,6 +39,13 @@ namespace Cyberfuck
             Velocity = Point.Zero;
             box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width/2, 0, Texture.Width, Texture.Height);
         }
+
+        public Player(PlayerData playerData)
+        {
+            this.id = playerData.ID;
+            this.Velocity = playerData.Entity.Velocity;
+            this.box = World.collisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
+        }
         public void Draw()
         {
             CyberFuck.spriteBatch.Draw(Texture, Bounds, Texture.Bounds, Color.White);
@@ -49,18 +58,21 @@ namespace Cyberfuck
             int velY = Velocity.Y;
             if(velY < FALL_SPEED)
                 velY += gravity;
-            if (Input.IsKeyDown(Keys.Right))
-                velX = MAX_SPEED;
-            else if (Input.IsKeyDown(Keys.Left))
-                velX = -MAX_SPEED;
-            else
-                velX = 0;
-            if (Input.KeyWentDown(Keys.Space))
+            if(ID == World.playerId)
             {
-                if(jumpCount > 0)
+                if (Input.IsKeyDown(Keys.Right))
+                    velX = MAX_SPEED;
+                else if (Input.IsKeyDown(Keys.Left))
+                    velX = -MAX_SPEED;
+                else
+                    velX = 0;
+                if (Input.KeyWentDown(Keys.Space))
                 {
-                    jumpCount--;
-                    velY = -JUMP_VELOCITY;
+                    if(jumpCount > 0)
+                    {
+                        jumpCount--;
+                        velY = -JUMP_VELOCITY;
+                    }
                 }
             }
 
@@ -82,11 +94,17 @@ namespace Cyberfuck
             }
             if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
-                jumpCount = 0;
-                if (Input.IsKeyDown(Keys.Space))
+                jumpCount = 3;
+                if(ID == World.playerId)
                 {
-                    velY = -JUMP_VELOCITY;
-                    jumpCount = 2;
+                    if (Input.IsKeyDown(Keys.Space))
+                    {
+                        if(jumpCount > 0)
+                        {
+                            jumpCount--;
+                            velY = -JUMP_VELOCITY;
+                        }
+                    }
                 }
                 if(move.Hits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && move.Hits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
                 {
@@ -95,10 +113,18 @@ namespace Cyberfuck
             }
             Velocity = new Point(velX, velY);
 
-            if(oldPlayer != this)
+            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == World.playerId)))
             {
-                CyberFuck.netPlay.SendMessage(Network.MessageType.PlayerUpdate, World.playerId, new PlayerData(this));
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
             }
+        }
+
+        public void Apply(PlayerData data)
+        {
+            if (this.ID != data.ID)
+                throw new Exception("id doesnt match");
+            this.box.Move(data.Entity.Position.X, data.Entity.Position.Y, (c) => CollisionResponses.None);
+            this.velocity = data.Entity.Velocity;
         }
 
     }

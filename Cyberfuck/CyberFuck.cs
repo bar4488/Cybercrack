@@ -9,13 +9,17 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Cyberfuck.Network;
 using Cyberfuck.Logger;
+using Cyberfuck.Screen;
 
 namespace Cyberfuck
 {
 	public partial class CyberFuck : Game
 	{
+		public static SpriteFont font;
+
 		public static Dictionary<string, Texture2D> textures;
 		public static INetBase netPlay;
+		public static IScreen Screen;
 		private static ILogger logger = new ConsoleLogger();
 
 		public static ILogger Logger { get => logger; set => logger = value; }
@@ -30,13 +34,26 @@ namespace Cyberfuck
 		protected override void Initialize()
 		{
 			base.Initialize();
-			HostWorld(null);
+			Screen = new MainScreen();
+			//Host(null);
 		}
 
-		public void HostWorld(string level)
+		public static void Start(string level)
 		{
+			NetStatus.Type = NetType.Single;
+			Screen = new GameScreen();
+		}
+		public static void Join(string ip, int port)
+		{
+			NetStatus.Type = NetType.Client;
+			netPlay = new NetClient(ip, port);
+		}
+		public static void Host(string level)
+		{
+			NetStatus.Type = NetType.Server;
+			if (!(Screen is GameScreen))
+				Screen = new GameScreen();
 			netPlay = new NetServer(1234);
-			World.LoadWorld();
 		}
 		protected override void Update(GameTime gameTime)
 		{
@@ -56,8 +73,7 @@ namespace Cyberfuck
 				this.Exit();
 			}
 #endif
-			World.Update(gameTime);
-			netPlay.Update();
+			Screen.Update(gameTime);
 			base.Update(gameTime);
 		}
 	}

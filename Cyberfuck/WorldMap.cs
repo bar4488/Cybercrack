@@ -23,8 +23,12 @@ namespace Cyberfuck
     public class WorldMap
     {
         public System.Drawing.Bitmap bitmap;
+        TileType[,] tileMap;
         public Humper.World world;
-        public Point Size { get => new Point(bitmap.Width, bitmap.Height); }
+
+        public int Width => tileMap.GetLength(0);
+        public int Height => tileMap.GetLength(1);
+        public Point Size { get => new Point(Width, Height); }
 
         public TileType GetTile(int x, int y)
         {
@@ -36,23 +40,27 @@ namespace Cyberfuck
             return TileType.None;
         }
 
-        public WorldMap(string level = "Level1.png")
+        public WorldMap(System.Drawing.Bitmap map)
         {
-            this.bitmap = new System.Drawing.Bitmap(@"Content/" + level);
-            world = new Humper.World(bitmap.Width * Constants.TILE_SIZE, bitmap.Height * Constants.TILE_SIZE);
+            bitmap = map;
+            tileMap = new TileType[map.Width, map.Height];
+            world = new Humper.World(map.Width * Constants.TILE_SIZE, map.Height * Constants.TILE_SIZE);
             
-            for(int x = 0; x < bitmap.Width; x++)
+            for(int x = 0; x < Width; x++)
             {
-                for(int y = 0; y < bitmap.Height; y++)
+                for(int y = 0; y <Height; y++)
                 {
-                    if (GetTile(x, y) == TileType.Dirt)
+                    tileMap[x, y] = GetTile(x, y);
+                    if (tileMap[x,y] == TileType.Dirt)
                     {
                         world.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
                     }
 
                 }
             }
-
+        }
+        public WorldMap(string level = "Level1.png"): this(new System.Drawing.Bitmap(@"Content/" + level))
+        {
         }
         public void Draw()
         {
@@ -69,16 +77,16 @@ namespace Cyberfuck
                 startTileX = 0;
             if (startTileY < 0)
                 startTileY = 0;
-            if (endTileX > bitmap.Width)
-                endTileX = bitmap.Width;
-            if (endTileY > bitmap.Height)
-                endTileY = bitmap.Height;
+            if (endTileX > Width)
+                endTileX = Width;
+            if (endTileY > Height)
+                endTileY = Height;
 
             for(int x = startTileX; x < endTileX; x++)
             {
                 for(int y = startTileY; y < endTileY; y++)
                 {
-                    if (GetTile(x,y) == TileType.Dirt)
+                    if (tileMap[x, y] == TileType.Dirt)
                         CyberFuck.spriteBatch.Draw(CyberFuck.textures["tileDirt"] , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.textures["tileDirt"].Width, CyberFuck.textures["tileDirt"].Height), Color.White);
                 }
             }

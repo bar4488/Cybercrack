@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cyberfuck.Data;
 
 namespace Cyberfuck.Network
 {
@@ -13,9 +14,10 @@ namespace Cyberfuck.Network
     }
     public interface INetBase
     {
-        void SendMessage(MessageType messageType, int player, object data);
+        void SendMessage(MessageContentType messageType, int player, IMessageContent data);
         void Update();
         void Close();
+        void SnapShot();
     }
 
 }

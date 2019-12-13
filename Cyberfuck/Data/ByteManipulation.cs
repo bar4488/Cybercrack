@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Cyberfuck.Network
+namespace Cyberfuck.Data
 {
     public static class ByteManipulation
     {
@@ -28,6 +28,16 @@ namespace Cyberfuck.Network
                 offset += bytesArray[i].Length;
             }
             return finalBytes;
+        }
+
+        public static int[] ConvertBytesToInts(byte[] arr)
+        {
+            int[] result = new int[arr.Length / sizeof(int)];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = BitConverter.ToInt32(arr, i * sizeof(int));
+            }
+            return result;
         }
     }
 }
