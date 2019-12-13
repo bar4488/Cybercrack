@@ -27,6 +27,7 @@ namespace Cyberfuck.Network
 
         public Connection(TcpClient conn)
         {
+            conn.NoDelay = true;
             this.conn = conn;
             stream = conn.GetStream();
             state = ConnectionState.Initialized;
@@ -74,6 +75,7 @@ namespace Cyberfuck.Network
         
         public void Reset(TcpClient conn)
         {
+            conn.NoDelay = true;
             state = ConnectionState.Initialized;
             this.conn = conn;
             this.stream = conn.GetStream();

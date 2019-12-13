@@ -61,6 +61,12 @@ namespace Cyberfuck.Screen
             if (Input.KeyWentDown(Keys.Down))
                 state = (int)state < 2 ? state + 1 : state;
 
+			if(Input.KeyWentDown(Keys.Escape))
+			{
+                Close(() => {
+                    CyberFuck.Screen = new MainScreen();
+                });
+			}
             switch (state)
             {
                 case State.IP:

@@ -57,6 +57,12 @@ namespace Cyberfuck.Screen
             if (Input.KeyWentDown(Keys.Down))
                 state++;
 
+			if(Input.KeyWentDown(Keys.Escape))
+			{
+                Close(() => {
+                    CyberFuck.instance.Exit();
+                });
+			}
             if (Input.KeyWentDown(Keys.Enter))
             {
                 switch ((State)(ToState(state)))
@@ -73,7 +79,10 @@ namespace Cyberfuck.Screen
                         CyberFuck.Screen = new JoinScreen();
                         break;
                     case State.Single:
-                        CyberFuck.Start("Level10.png");
+                        CyberFuck.Screen = new ChooseWorldScreen((w) =>
+                        {
+                            CyberFuck.Start(w);
+                        });
                         break;
                     case State.Quit:
                         CyberFuck.instance.Exit();

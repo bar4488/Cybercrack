@@ -25,6 +25,7 @@ namespace Cyberfuck.Entities
         bool directionRight = true;
 
         PlayerData oldPlayer;
+        PlayerData toApply;
 
         private Texture2D Texture { get => CyberFuck.textures["player"]; }
         public EntityType Type { get => EntityType.Player; }
@@ -129,12 +130,14 @@ namespace Cyberfuck.Entities
             }
         }
 
-        public void Apply(PlayerData data)
+        public void Apply(PlayerData toApply)
         {
-            if (this.ID != data.ID)
+            if (this.ID != toApply.ID)
                 throw new Exception("id doesnt match");
-            this.box.Move(data.Entity.Position.X, data.Entity.Position.Y, (c) => CollisionResponses.None);
-            this.velocity = data.Entity.Velocity;
+            if(NetStatus.Server)
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, this.ID, toApply);
+            this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
+            this.velocity = toApply.Entity.Velocity;
         }
 
     }

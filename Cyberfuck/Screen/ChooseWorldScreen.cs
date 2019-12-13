@@ -56,6 +56,12 @@ namespace Cyberfuck.Screen
 
         public void Update(GameTime gameTime)
         {
+			if(Input.KeyWentDown(Keys.Escape))
+			{
+                Close(() => {
+                    CyberFuck.Screen = new MainScreen();
+                });
+			}
             if (Input.KeyWentDown(Keys.Up))
                 worldChoice--;
             if (Input.KeyWentDown(Keys.Down))
