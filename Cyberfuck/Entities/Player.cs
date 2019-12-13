@@ -81,11 +81,11 @@ namespace Cyberfuck.Entities
                         velY = -JUMP_VELOCITY;
                     }
                 }
-                if (velX > 0)
-                    directionRight = true;
-                if (velX < 0)
-                    directionRight = false;
             }
+            if (velX > 0)
+                directionRight = true;
+            if (velX < 0)
+                directionRight = false;
 
             var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
             {
