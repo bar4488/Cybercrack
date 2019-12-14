@@ -19,7 +19,7 @@ namespace Cyberfuck.Entities
         const int JUMP_VELOCITY = 24;
         const int MAX_SPEED = 8;
         const int FALL_SPEED = 12;
-        const int gravity = 1;
+        const int GRAVITY = 1;
         int jumpCount = 2;
         int id;
         bool directionRight = true;
@@ -60,7 +60,7 @@ namespace Cyberfuck.Entities
             int velX = Velocity.X;
             int velY = Velocity.Y;
             if(velY < FALL_SPEED)
-                velY += gravity;
+                velY += GRAVITY;
             if(ID == World.myPlayerId)
             {
                 if (Input.IsKeyDown(Keys.Right) || Input.IsKeyDown(Keys.D))
@@ -73,12 +73,32 @@ namespace Cyberfuck.Entities
                 }
                 else
                     velX = 0;
-                if (Input.KeyWentDown(Keys.Space))
+                if (Input.KeyWentDown(Keys.Space) || Input.KeyWentDown(Keys.Up))
                 {
                     if(jumpCount > 0)
                     {
                         jumpCount--;
                         velY = -JUMP_VELOCITY;
+                    }
+                }
+
+                if (Input.KeyWentDown(Keys.Space) || Input.KeyWentDown(Keys.Up))
+                {
+                    if (jumpCount > 0)
+                    {
+                        jumpCount--;
+                        velY = -JUMP_VELOCITY;
+                    }
+                }
+                if (Input.KeyWentDown(Keys.Down))
+                {
+                    velY += 5;
+                }
+                if (Input.IsKeyDown(Keys.Down))
+                {
+                    if (velY < FALL_SPEED * 2)
+                    {
+                        velY += GRAVITY * 2;
                     }
                 }
             }
@@ -120,7 +140,7 @@ namespace Cyberfuck.Entities
                 IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
                 if(TileHits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && TileHits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
                 {
-                    velY = -(int)Math.Sqrt(60 * gravity);
+                    velY = -(int)Math.Sqrt(60 * GRAVITY);
                 }
             }
             Velocity = new Point(velX, velY);
