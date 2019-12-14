@@ -20,6 +20,7 @@
 		public Vector2 Position { get; set; }
 
 		public float Remaining { get { return 1.0f - this.Amount; } }
+		public Vector2 distance;
 
 		#region Public functions
 
@@ -171,8 +172,21 @@
 
 			var velocity = (destination.Location - origin.Location);
 
-			Vector2 invEntry, invExit, entry, exit;
+			//the smallest vector from the origin rect to the hit rect
+			Vector2 invEntry;
+			// the longest vector from the origin rect to the hit rect
+			Vector2 invExit;
+            //the time until collision 
+			Vector2 entry;
+            //the time until completly passing the hit rect 
+			Vector2 exit;
 
+			/*
+			invEntry.X = Math.Min(other.Left - origin.Right, other.Right - origin.Left);
+			invEntry.Y = Math.Min(other.Top - origin.Bottom, other.Bottom - origin.Top);
+			invExit.X = Math.Max(other.Left - origin.Right, other.Right - origin.Left);
+			invExit.Y = Math.Max(other.Top - origin.Bottom, other.Bottom - origin.Top);
+			*/
 			if (velocity.X > 0)
 			{
 				invEntry.X = other.Left - origin.Right;
@@ -195,6 +209,8 @@
 				invExit.Y = other.Top - origin.Bottom;
 			}
 
+			// calc the time in the current velocity until theres a collision in the 
+			// x axis and untill the rect passes the collided object in the x axis
 			if (Math.Abs(velocity.X) < Constants.Threshold)
 			{
 				entry.X = float.MinValue;
@@ -206,6 +222,8 @@
 				exit.X = invExit.X / velocity.X;
 			}
 
+			// calc the time in the current velocity until theres a collision in the 
+			// y axis and untill the rect passes the collided object in the y axis
 			if (Math.Abs(velocity.Y) < Constants.Threshold)
 			{
 				entry.Y = float.MinValue;
@@ -217,12 +235,22 @@
 				exit.Y = invExit.Y / velocity.Y;
 			}
 
+			//if the entry is smalle than one in x then the x axis will not collide after applying the velocity so there is no chace
+			// the object wont colide or is already intersecting in the x axis, same for the y.
 			if (entry.Y > 1.0f) entry.Y = float.MinValue;
 			if (entry.X > 1.0f) entry.X = float.MinValue;
 
+			// get rid for the min value by taking the max value of the x or the y,
+			// min value indicates that theres no collision or already coliding, 
+			// if the exit x and y is maxvalue then theres no collision for sure
+			// 
+			// the time untill the collision starts
 			var entryTime = Math.Max(entry.X, entry.Y);
+			// time until the collision ends
 			var exitTime = Math.Min(exit.X, exit.Y);
 
+
+			// if the time untill impact in y is less than 0 and the 
 			if (
 				(entryTime > exitTime || entry.X < 0.0f && entry.Y < 0.0f) ||
 				(entry.X < 0.0f && (origin.Right < other.Left || origin.Left > other.Right)) ||
@@ -230,12 +258,31 @@
 				return null; 
 
 
+			Vector2 normal = GetNormal(invEntry, invExit, entry);
+			if(normal.Y == 1)
+			{
+				  Console.WriteLine("collide top");
+			}
+			Vector2 distance = velocity * entryTime;
+			Vector2 position = origin.Location + distance;
+
+			if(velocity.X > Constants.Threshold)
+			{
+				distance.X += origin.Width;
+			}
+			if(velocity.Y > Constants.Threshold)
+			{
+				distance.Y += origin.Height;
+			}
+
+
 			var result = new Hit()
 			{
 				Amount = entryTime,
-				Position = origin.Location + velocity * entryTime,
-				Normal = GetNormal(invEntry, invExit, entry),
+				Position = position,
+				Normal = normal,
 			};
+			result.distance = invEntry;
 
 
 			return result;
@@ -314,7 +361,8 @@
 				(entry.X < 0.0f && (origin.X < other.Left || origin.X > other.Right)) ||
 				entry.Y < 0.0f && (origin.Y < other.Top || origin.Y > other.Bottom))
 				return null;
-			
+
+
 			var result = new Hit()
 			{
 				Amount = entryTime,
@@ -348,11 +396,17 @@
 				return true;
 			}
 			*/
+			var thisDistance = (origin - this.Box.Bounds.Center).LengthSquared();
+			var otherDistance = (origin - than.Box.Bounds.Center).LengthSquared();
+			
+			return thisDistance < otherDistance;
 
-			var thisDistance = (origin - this.Position).LengthSquared();
-			var otherDistance = (origin - than.Position).LengthSquared();
+			var thissDistance = (origin - this.Position).LengthSquared();
+			var otherrDistance = (origin - than.Position).LengthSquared();
 
 			return thisDistance < otherDistance;
+
+			return this.distance.LengthSquared() < ((Hit)than).distance.LengthSquared();
 		}
 	}
 }

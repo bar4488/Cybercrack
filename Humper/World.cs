@@ -108,6 +108,7 @@
 
 		public IHit Hit(RectangleF origin, RectangleF destination, IEnumerable<IBox> ignoring = null)
 		{
+			//rectangle fully containing the origin and destination rectangle.
 			var wrap = new RectangleF(origin, destination);
 			var boxes = this.Find(wrap.X, wrap.Y, wrap.Width, wrap.Height);
 
@@ -122,7 +123,7 @@
 			{
 				var hit = Humper.Hit.Resolve(origin, destination, other);
 
-				if (hit != null && (nearest == null || hit.IsNearest(nearest, origin.Location)))
+				if (hit != null && (nearest == null || hit.IsNearest(nearest, origin.Center)))
 				{
 					nearest = hit;
 				}
