@@ -13,11 +13,19 @@ namespace Cyberfuck.Network
         Client,
         Single
     }
+    public enum CloseReason: byte
+    {
+        ConnectionInterrupt,
+        UserLeft,
+        ServerClosed,
+    }
+    public delegate void OnCloseEvent(CloseReason reason);
     public interface INetBase
     {
+        event OnCloseEvent OnClose;
         void SendMessage(MessageContentType messageType, int player, IMessageContent data);
         void Update(GameTime gameTime);
-        void Close();
+        void Close(CloseReason reason);
         void SnapShot();
     }
 

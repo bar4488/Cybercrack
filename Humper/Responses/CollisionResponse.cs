@@ -13,6 +13,7 @@ namespace Humper.Responses
 				case CollisionResponses.Cross: child = new CrossResponse(col); break;
 				case CollisionResponses.Slide: child = new SlideResponse(col); break;
 				case CollisionResponses.Bounce: child = new BounceResponse(col); break;
+				case CollisionResponses.Ignore: child = new IgnoreResponse(col); break;
 				default: throw new ArgumentException("Unsupported collision type");
 			}
 		}
@@ -26,7 +27,7 @@ namespace Humper.Responses
 			if (response == CollisionResponses.None)
 				return null;
 
-			return new CollisionResponse(col, response);
+			return new CollisionResponse(col, response).child;
 		}
 	}
 }

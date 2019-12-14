@@ -68,7 +68,7 @@ namespace Cyberfuck.Network
                         World.RemovePlayer(data.playerId);
                         break;
                     default:
-                        break;
+                        throw new NotImplementedException();
                 }
             }
         }

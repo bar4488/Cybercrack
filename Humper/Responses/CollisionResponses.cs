@@ -7,6 +7,7 @@
 		Cross,
 		Slide,
 		Bounce,
+		Ignore
 	}
 }
 

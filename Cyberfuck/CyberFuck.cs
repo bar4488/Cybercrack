@@ -13,6 +13,12 @@ using Cyberfuck.Screen;
 
 namespace Cyberfuck
 {
+    enum Collider
+    {
+        Tile = 1 << 0,
+        Enemy = 1 << 1,
+        Player = 1 << 2,
+    }
 	public partial class CyberFuck : Game
 	{
 		public static SpriteFont font;

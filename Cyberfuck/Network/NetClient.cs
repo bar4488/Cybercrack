@@ -102,9 +102,9 @@ namespace Cyberfuck.Network
         {
             server.Stream.Write(msg, 0, msg.Length);
         }
-        public override void Close()
+        public override void Close(CloseReason reason)
         {
-            base.Close();
+            base.Close(reason);
             server.stream.Close();
             server.conn.Close();
             server.State = ConnectionState.NotConnected;

@@ -12,5 +12,9 @@ namespace Cyberfuck.Entities
         int ID { get; }
         Point Position { get; }
         Point Velocity { get; }
+        Vector2 TilePosition { get; }
+        Vector2 TileVelocity { get; }
+        int Width { get; }
+        int Height { get; }
     }
 }

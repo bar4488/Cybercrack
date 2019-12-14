@@ -25,9 +25,9 @@ namespace Cyberfuck.Network
         public byte[] Content { get => content; private set => content = value; }
 
         private NetworkMessage() { }
-        public NetworkMessage(IMessageContent content)
+        public NetworkMessage(IMessageContent content, MessageContentType type)
         {
-            this.Type = content.ContentType;
+            this.Type = type;
             this.Content = content.Encode();
             this.ContentLength = this.Content.Length;
         }

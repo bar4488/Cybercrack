@@ -166,8 +166,12 @@
 				var collision = new Collision() { Box = box, Hit = nearest, Goal = destination, Origin = origin };
 				var response = filter(collision);
 
-				if (response != null && destination != response.Destination)
+				if (response != null)
 				{
+					if(response.GetType() == typeof(Responses.IgnoreResponse))
+					{
+						impact = origin;
+					}
 					ignoring.Add(nearest.Box);
 					return this.Simulate(hits, ignoring, box, impact, response.Destination, filter);
 				}

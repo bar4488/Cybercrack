@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Cyberfuck.Entities;
+using Cyberfuck.Network;
 
 namespace Cyberfuck.Data
 {

@@ -60,9 +60,9 @@ namespace Cyberfuck.Network
             previousSnapshot = ServerSnapshot.Snapshot();
         }
 
-        public override void Close()
+        public override void Close(CloseReason reason)
         {
-            base.Close();
+            base.Close(reason);
             listener.Stop();
             foreach (var client in clients)
             {

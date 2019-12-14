@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Cyberfuck.Network;
+using Cyberfuck.Data;
 
 namespace Cyberfuck.Screen
 {
@@ -45,7 +46,7 @@ namespace Cyberfuck.Screen
 
         public void Close(OnClose callBack)
         {
-            CyberFuck.netPlay?.Close();
+            CyberFuck.netPlay?.Close(CloseReason.UserLeft);
             CyberFuck.Screen = new MainScreen();
             // close the game;
             callBack?.Invoke();

@@ -10,28 +10,29 @@ namespace Cyberfuck.Network
 {
     public abstract class NetBase : INetBase
     {
-        public void SendMessage(MessageContentType messageType, int player, IMessageContent data)
+        public event OnCloseEvent OnClose;
+        public void SendMessage(MessageContentType type, int player, IMessageContent data)
         {
             NetworkMessage msg;
             if(data != null)
             {
-                msg = new NetworkMessage(data);
+                msg = new NetworkMessage(data, type);
                 SendBuffer(msg.Encode(), player);
             }
             else
             {
-                SendBuffer(NetworkMessage.EmptyMessage(messageType), player);
+                SendBuffer(NetworkMessage.EmptyMessage(type), player);
             }
         }
 
         public abstract void SendBuffer(byte[] msg, int player);
         public abstract void SnapShot();
 
-        public virtual void Close()
+        public virtual void Close(CloseReason reason)
         {
-            SendMessage(MessageContentType.RemovePlayer, NetStatus.Server ? -1 : World.myPlayerId, null);
+            OnClose?.Invoke(reason);
+            CyberFuck.netPlay?.SendMessage(MessageContentType.CloseConnection, NetStatus.Server ? -1 : World.myPlayerId, null);
         }
-
         public abstract void Update(GameTime gameTime);
     }
 }

@@ -27,11 +27,15 @@ namespace Cyberfuck.Entities
         PlayerData oldPlayer;
         PlayerData toApply;
 
-        private Texture2D Texture { get => CyberFuck.textures["player"]; }
+        public Texture2D Texture { get => CyberFuck.textures["player"]; }
         public EntityType Type { get => EntityType.Player; }
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
         public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height);  }
         public Point Velocity { get => velocity; set => velocity = value; }
+        public Vector2 TilePosition => new Vector2(box.X / 16, box.Y / 16);
+        public Vector2 TileVelocity => new Vector2(velocity.X / 16, velocity.Y / 16);
+        public int Width => Texture.Width;
+        public int Height => Texture.Height;
 
         public int ID => id;
 
@@ -40,6 +44,7 @@ namespace Cyberfuck.Entities
             this.id = id;
             Velocity = Point.Zero;
             box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width/2, 0, Texture.Width, Texture.Height);
+            box.AddTags(Collider.Player);
         }
 
         public Player(PlayerData playerData)
@@ -47,10 +52,10 @@ namespace Cyberfuck.Entities
             this.id = playerData.ID;
             this.Velocity = playerData.Entity.Velocity;
             this.box = World.collisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
+            box.AddTags(Collider.Player);
         }
         public void Draw(GameTime gameTime)
         {
-            float scale = (float)Math.Sin(gameTime.TotalGameTime.Ticks / 240);
             CyberFuck.spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
         }
 
@@ -84,7 +89,7 @@ namespace Cyberfuck.Entities
 
                 if (Input.KeyWentDown(Keys.Space) || Input.KeyWentDown(Keys.Up))
                 {
-                    if (jumpCount > 0)
+                    if (jumpCount > 0 || true)
                     {
                         jumpCount--;
                         velY = -JUMP_VELOCITY;
@@ -113,31 +118,34 @@ namespace Cyberfuck.Entities
                 {
                     return CollisionResponses.Slide;
                 }
+                if(collision.Other.HasTag(Collider.Player))
+                    return CollisionResponses.Ignore;
                 return CollisionResponses.Cross;
             });
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
+            //Point velocity = new Point(Position.X - oldPlayer.Entity.Position.X, Position.Y - oldPlayer.Entity.Position.Y);
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 velY = 0;
             }
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X != 0 && c.Box.Bounds.Top < Bounds.Bottom && c.Box.Bounds.Bottom > Bounds.Top)))
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X != 0 && c.Box.Bounds.Top < Bounds.Bottom && c.Box.Bounds.Bottom > Bounds.Top)))
             {
                 velX = 0;
             }
-            if (move.Hits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 jumpCount = 3;
                 if(ID == World.myPlayerId)
                 {
                     if (Input.IsKeyDown(Keys.Space))
                     {
-                        if(jumpCount > 0)
+                        if(jumpCount > 0 || true)
                         {
                             jumpCount--;
                             velY = -JUMP_VELOCITY;
                         }
                     }
                 }
-                IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
                 if(TileHits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && TileHits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
                 {
                     velY = -(int)Math.Sqrt(60 * GRAVITY);
