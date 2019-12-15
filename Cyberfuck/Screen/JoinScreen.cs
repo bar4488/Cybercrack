@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Cyberfuck.Screen
 {
-    class JoinScreen: IScreen
+    class JoinScreen: MenuScreen
     {
         enum State
         {
@@ -22,58 +22,44 @@ namespace Cyberfuck.Screen
         bool error = false;
         public JoinScreen()
         {
-
+            ReloadTexts();
         }
-        public void Close(OnClose callback)
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            callback();
-        }
+            base.Draw(gameTime, spriteBatch);
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-        {
             spriteBatch.Begin();
-            int count = 0;
-            foreach (var value in Enum.GetValues(typeof(State)))
-            {
-                string text = value.ToString();
-                if ((State)value == State.IP)
-                    text += ": " + ip;
-                if ((State)value == State.Port)
-                    text += ": " + port;
-                spriteBatch.DrawString(CyberFuck.font, text, new Vector2(CenterX(text), CyberFuck.graphics.GraphicsDevice.Viewport.Height / 2 -70 + count * 70), state == (State)value ? Color.Red : Color.Black, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
-                count++;
-            }
             if(error)
                 spriteBatch.DrawString(CyberFuck.font, "could not connect to host", new Vector2(10, CyberFuck.graphics.GraphicsDevice.Viewport.Height -70),  Color.Red, 0, Vector2.Zero, 2, SpriteEffects.None, 0f);
             spriteBatch.End();
         }
 
-        public int CenterX(string text)
+        private void ReloadTexts()
         {
-            int posX = CyberFuck.graphics.GraphicsDevice.Viewport.Width / 2;
-            return posX - (int)CyberFuck.font.MeasureString(text).X / 2;
+            texts.Clear();
+            texts.Add("IP: " + ip);
+            texts.Add("Port: " + port);
+            texts.Add("Join");
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
-            if (Input.KeyWentDown(Keys.Up))
-                state = state > 0 ? state - 1 : state;
-            if (Input.KeyWentDown(Keys.Down))
-                state = (int)state < 2 ? state + 1 : state;
-
+            base.Update(gameTime);
 			if(Input.KeyWentDown(Keys.Escape))
 			{
                 Close(() => {
                     CyberFuck.Screen = new MainScreen();
                 });
 			}
-            switch (state)
+            switch ((State)(choice % texts.Count))
             {
                 case State.IP:
                     ip = Input.InputString(ip);
+                    ReloadTexts();
                     break;
                 case State.Port:
                     port = Input.InputString(port);
+                    ReloadTexts();
                     break;
                 case State.Join:
                     break;
@@ -82,13 +68,13 @@ namespace Cyberfuck.Screen
             }
             if (Input.KeyWentDown(Keys.Enter))
             {
-                switch (state)
+                switch ((State)(choice % texts.Count))
                 {
                     case State.IP:
-                        state = State.Port;
+                        choice++;
                         break;
                     case State.Port:
-                        state = State.Join;
+                        choice++;
                         break;
                     case State.Join:
                         int portNum;

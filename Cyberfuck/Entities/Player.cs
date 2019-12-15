@@ -64,6 +64,45 @@ namespace Cyberfuck.Entities
             oldPlayer = new PlayerData(this);
             int velX = Velocity.X;
             int velY = Velocity.Y;
+            var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
+            {
+                if (collision.Other.HasTag(Collider.Tile))
+                {
+                    return CollisionResponses.Slide;
+                }
+                if(collision.Other.HasTag(Collider.Player))
+                    return CollisionResponses.Ignore;
+                return CollisionResponses.Cross;
+            });
+            IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
+            //Point velocity = new Point(Position.X - oldPlayer.Entity.Position.X, Position.Y - oldPlayer.Entity.Position.Y);
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            {
+                velY = 0;
+            }
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X != 0 && c.Box.Bounds.Top < Bounds.Bottom && c.Box.Bounds.Bottom > Bounds.Top)))
+            {
+                velX = 0;
+            }
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            {
+                jumpCount = 3;
+                if(ID == World.myPlayerId)
+                {
+                    if (Input.IsKeyDown(Keys.Space))
+                    {
+                        if(jumpCount > 0 || true)
+                        {
+                            jumpCount--;
+                            velY = -JUMP_VELOCITY;
+                        }
+                    }
+                }
+                if(TileHits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && TileHits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
+                {
+                    velY = -(int)Math.Sqrt(60 * GRAVITY);
+                }
+            }
             if(velY < FALL_SPEED)
                 velY += GRAVITY;
             if(ID == World.myPlayerId)
@@ -112,45 +151,6 @@ namespace Cyberfuck.Entities
             if (velX < 0)
                 directionRight = false;
 
-            var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
-            {
-                if (collision.Other.HasTag(Collider.Tile))
-                {
-                    return CollisionResponses.Slide;
-                }
-                if(collision.Other.HasTag(Collider.Player))
-                    return CollisionResponses.Ignore;
-                return CollisionResponses.Cross;
-            });
-            IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
-            //Point velocity = new Point(Position.X - oldPlayer.Entity.Position.X, Position.Y - oldPlayer.Entity.Position.Y);
-            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
-            {
-                velY = 0;
-            }
-            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.X != 0 && c.Box.Bounds.Top < Bounds.Bottom && c.Box.Bounds.Bottom > Bounds.Top)))
-            {
-                velX = 0;
-            }
-            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
-            {
-                jumpCount = 3;
-                if(ID == World.myPlayerId)
-                {
-                    if (Input.IsKeyDown(Keys.Space))
-                    {
-                        if(jumpCount > 0 || true)
-                        {
-                            jumpCount--;
-                            velY = -JUMP_VELOCITY;
-                        }
-                    }
-                }
-                if(TileHits.All((c) => c.Box.Bounds.Y >= Bounds.Bottom - Constants.TILE_SIZE) && TileHits.Any((c) => c.Box.Bounds.Y < Bounds.Bottom))
-                {
-                    velY = -(int)Math.Sqrt(60 * GRAVITY);
-                }
-            }
             Velocity = new Point(velX, velY);
 
             if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == World.myPlayerId)))

@@ -18,6 +18,8 @@ namespace Cyberfuck
         Tile = 1 << 0,
         Enemy = 1 << 1,
         Player = 1 << 2,
+		// a tile which the user can step on
+        Slope = 1 << 3,
     }
 	public partial class CyberFuck : Game
 	{
