@@ -12,7 +12,7 @@ using Cyberfuck.Data;
 
 namespace Cyberfuck.Entities
 {
-    public class Player: IFocusable, IEntity
+    public class Player : IFocusable, IEntity
     {
         Point velocity;
         IBox box;
@@ -23,6 +23,9 @@ namespace Cyberfuck.Entities
         int jumpCount = 2;
         int id;
         bool directionRight = true;
+        bool onGound = false;
+        bool midLand = true;
+        int fallStart = 0;
 
         PlayerData oldPlayer;
         PlayerData toApply;
@@ -30,7 +33,7 @@ namespace Cyberfuck.Entities
         public Texture2D Texture { get => CyberFuck.textures["player"]; }
         public EntityType Type { get => EntityType.Player; }
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
-        public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height);  }
+        public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height); }
         public Point Velocity { get => velocity; set => velocity = value; }
         public Vector2 TilePosition => new Vector2(box.X / 16, box.Y / 16);
         public Vector2 TileVelocity => new Vector2(velocity.X / 16, velocity.Y / 16);
@@ -43,7 +46,7 @@ namespace Cyberfuck.Entities
         {
             this.id = id;
             Velocity = Point.Zero;
-            box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width/2, 0, Texture.Width, Texture.Height);
+            box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
         }
 
@@ -70,13 +73,39 @@ namespace Cyberfuck.Entities
                 {
                     return CollisionResponses.Slide;
                 }
-                if(collision.Other.HasTag(Collider.Player))
-                    return CollisionResponses.Ignore;
+                if (collision.Other.HasTag(Collider.Slope))
+                    if (collision.Other.HasTag(Collider.Player))
+                        return CollisionResponses.Ignore;
                 return CollisionResponses.Cross;
             });
             IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
             //Point velocity = new Point(Position.X - oldPlayer.Entity.Position.X, Position.Y - oldPlayer.Entity.Position.Y);
-            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y != 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y == -1 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
+            {
+                velY = 0;
+                if (!onGound)
+                {
+                    onGound = true;
+                    int deltaY = Position.Y - fallStart;
+                    fallStart = Position.Y;
+                    if(deltaY > 300)
+                    {
+                        velY = -4;
+                        midLand = true;
+                    }
+                }
+                else if (midLand)
+                {
+                    midLand = false;
+                }
+            }
+            else if(!midLand)
+            {
+                onGound = false;
+                if (fallStart > Position.Y)
+                    fallStart = Position.Y;
+            }
+            if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y == 1 && c.Box.Bounds.Left<Bounds.Right && c.Box.Bounds.Right> Bounds.Left)))
             {
                 velY = 0;
             }
