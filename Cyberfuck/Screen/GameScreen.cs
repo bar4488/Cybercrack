@@ -12,20 +12,17 @@ namespace Cyberfuck.Screen
     public class GameScreen: IScreen
     {
         World world;
+
+        public World World { get => world; }
+
         public GameScreen(string level)
         {
-            if(!NetStatus.Client)
-            {
-                world = new World();
-                world.LoadWorld(level);
-            }
+            world = new World();
+            world.LoadWorld(level);
         }
         public GameScreen(World world)
         {
-            if(!NetStatus.Client)
-            {
-                this.world = world;
-            }
+            this.world = world;
         }
         public void Update(GameTime gameTime)
         {

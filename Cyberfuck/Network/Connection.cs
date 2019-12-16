@@ -28,13 +28,15 @@ namespace Cyberfuck.Network
 
         public Connection(World world, TcpClient conn)
         {
+            this.world = world;
             conn.NoDelay = true;
             this.conn = conn;
             stream = conn.GetStream();
             state = ConnectionState.Initialized;
         }
-        public Connection(int id)
+        public Connection(World world, int id)
         {
+            this.world = world;
             this.id = id;
             state = ConnectionState.NotConnected;
         }

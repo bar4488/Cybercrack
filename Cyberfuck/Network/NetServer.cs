@@ -29,7 +29,7 @@ namespace Cyberfuck.Network
             listener = new TcpListener(IPAddress.Any, port);
             for(int i = 0; i < MaxClients; i++)
             {
-                clients[i] = new Connection(i);
+                clients[i] = new Connection(world, i);
             }
             connected = true;
             listener.Start();

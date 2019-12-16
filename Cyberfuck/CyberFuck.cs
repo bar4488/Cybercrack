@@ -55,13 +55,18 @@ namespace Cyberfuck
 		{
 			NetStatus.Type = NetType.Client;
 			netPlay = new NetClient(ip, port);
+            ((NetClient)netPlay).OnConnected += world =>
+            {
+                Screen = new GameScreen(world);
+            };
 		}
-		public static void Host(string level)
+
+        public static void Host(string level)
 		{
 			NetStatus.Type = NetType.Server;
 			if (!(Screen is GameScreen))
 				Screen = new GameScreen(level);
-			netPlay = new NetServer(1234);
+			netPlay = new NetServer(((GameScreen)Screen).World, 1234);
 		}
 		protected override void Update(GameTime gameTime)
 		{

@@ -14,14 +14,15 @@ using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network
 {
+    public delegate void OnConnectedEvent(World world);
     public class NetClient : NetBase
     {
         Connection server;
         ClientSnapshot previousSnapshot;
+        public event OnConnectedEvent OnConnected;
 
-        public NetClient(World world, string ip, int port): base(world)
+        public NetClient(string ip, int port): base(new World())
         {
-            this.world = world;
             TcpClient serverTcp = new TcpClient(ip, port);
             server = new Connection(world, serverTcp);
             ThreadPool.QueueUserWorkItem(new WaitCallback(Initialize), 0);
@@ -96,12 +97,19 @@ namespace Cyberfuck.Network
             PlayerData myPlayer = PlayerData.Decode(playerBytes);
             world.LoadPlayer(myPlayer, true);
             server.State = ConnectionState.Connected;
-            CyberFuck.Screen = new GameScreen(world);
+            OnConnected?.Invoke(world);
         }
 
         public override void SendBuffer(byte[] msg, int player)
         {
-            server.Stream.Write(msg, 0, msg.Length);
+            try
+            {
+                server.Stream.Write(msg, 0, msg.Length);
+            }
+            catch(SocketException e)
+            {
+                Close(CloseReason.ServerClosed);
+            }
         }
         public override void Close(CloseReason reason)
         {
