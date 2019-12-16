@@ -24,7 +24,6 @@ namespace Cyberfuck
 	public partial class CyberFuck : Game
 	{
 		public static SpriteFont font;
-
 		public static Dictionary<string, Texture2D> textures;
 		public static INetBase netPlay;
 		public static IScreen Screen;

@@ -72,9 +72,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aether.Physics2D, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Aether.Physics2D.1.4.0\lib\net40\Aether.Physics2D.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -86,6 +83,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
+    <Compile Include="Damage\Damage.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
     <Compile Include="Data\CloseConnectionData.cs" />
     <Compile Include="Data\RemovePlayerData.cs" />

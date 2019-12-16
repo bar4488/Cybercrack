@@ -19,10 +19,11 @@ namespace Cyberfuck.Network
         Connection server;
         ClientSnapshot previousSnapshot;
 
-        public NetClient(string ip, int port)
+        public NetClient(World world, string ip, int port): base(world)
         {
+            this.world = world;
             TcpClient serverTcp = new TcpClient(ip, port);
-            server = new Connection(serverTcp);
+            server = new Connection(world, serverTcp);
             ThreadPool.QueueUserWorkItem(new WaitCallback(Initialize), 0);
         }
 
@@ -42,7 +43,7 @@ namespace Cyberfuck.Network
                 memmoryStream.Position = 0;
                 worldMap = (Bitmap)f.Deserialize(memmoryStream);
             }
-            World.LoadWorld(worldMap);
+            world.LoadWorld(worldMap);
 
             //read entities data
             byte[] header = new byte[sizeof(int) * 2];
@@ -60,7 +61,7 @@ namespace Cyberfuck.Network
                 stream.Read(entityBytes, 0, EntityData.ContentLength);
                 entitiesData.Add(EntityData.Decode(entityBytes));
             }
-            World.LoadEntities(entitiesData);
+            world.LoadEntities(entitiesData);
 
 
             //read players data
@@ -79,7 +80,7 @@ namespace Cyberfuck.Network
                 stream.Read(playersBytes, 0, PlayerData.ContentLength);
                 playersData.Add(PlayerData.Decode(playersBytes));
             }
-            World.LoadPlayers(playersData);
+            world.LoadPlayers(playersData);
 
             //send approval
             byte[] approval = new byte[] { 0xff, 0xff, 0xff, 0xff };
@@ -93,9 +94,9 @@ namespace Cyberfuck.Network
             byte[] playerBytes = new byte[PlayerData.ContentLength];
             stream.Read(playerBytes, 0, playerBytes.Length);
             PlayerData myPlayer = PlayerData.Decode(playerBytes);
-            World.LoadPlayer(myPlayer, true);
+            world.LoadPlayer(myPlayer, true);
             server.State = ConnectionState.Connected;
-            CyberFuck.Screen = new GameScreen();
+            CyberFuck.Screen = new GameScreen(world);
         }
 
         public override void SendBuffer(byte[] msg, int player)
@@ -111,7 +112,7 @@ namespace Cyberfuck.Network
         }
         public override void Update(GameTime gameTime)
         {
-            ClientSnapshot snapshot = ClientSnapshot.SnapShot();
+            ClientSnapshot snapshot = ClientSnapshot.SnapShot(world);
             if(previousSnapshot.playerData != snapshot.playerData)
             {
                 SendMessage(MessageContentType.PlayerUpdate, snapshot.playerData.ID, snapshot.playerData);
@@ -122,7 +123,7 @@ namespace Cyberfuck.Network
         }
         public override void SnapShot()
         {
-            previousSnapshot = ClientSnapshot.SnapShot();
+            previousSnapshot = ClientSnapshot.SnapShot(world);
         }
     }
 }

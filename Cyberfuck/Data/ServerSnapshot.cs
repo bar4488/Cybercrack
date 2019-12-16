@@ -15,15 +15,15 @@ namespace Cyberfuck.Data
             this.playersData = pData;
             this.entitiesData = eData;
         }
-        public static ServerSnapshot Snapshot()
+        public static ServerSnapshot Snapshot(World world)
         {
             Dictionary<int, PlayerData> playersData = new Dictionary<int, PlayerData>();
             List<EntityData> entitiesData = new List<EntityData>();
-            foreach (var playerKV in World.players)
+            foreach (var playerKV in world.Players)
             {
                 playersData.Add(playerKV.Key, new PlayerData(playerKV.Value));
             }
-            foreach (var entity in World.entities)
+            foreach (var entity in world.Entities)
             {
                 entitiesData.Add(new EntityData(entity));
             }

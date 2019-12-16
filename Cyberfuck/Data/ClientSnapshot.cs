@@ -12,9 +12,9 @@ namespace Cyberfuck.Data
         {
             this.playerData = playerData;
         }
-        public static ClientSnapshot SnapShot()
+        public static ClientSnapshot SnapShot(World world)
         {
-            PlayerData myPlayer = new PlayerData(World.player);
+            PlayerData myPlayer = new PlayerData(world.Player);
             return new ClientSnapshot(myPlayer);
         }
     }

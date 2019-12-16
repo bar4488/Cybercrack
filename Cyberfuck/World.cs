@@ -10,62 +10,75 @@ using Cyberfuck.Network;
 
 namespace Cyberfuck
 {
-    static class World
+    public class World
     {
-        public static Humper.World collisionWorld;
-        public static WorldMap map;
-        public static Camera2D camera;
-        public static int myPlayerId;
-        public static Player player { get => players[myPlayerId]; }
-        public static Dictionary<int, Player> players = new Dictionary<int, Player>();
-        public static List<IEntity> entities = new List<IEntity>();
+        private static Humper.World collisionWorld;
+        private static WorldMap map;
+        private static Camera2D camera;
+        private static int myPlayerId;
+        private static Dictionary<int, Player> players = new Dictionary<int, Player>();
+        private static List<IEntity> entities = new List<IEntity>();
 
-        public static void LoadWorld(string level = "Level3.png")
+        public Player Player { get => players[myPlayerId]; }
+        public WorldMap Map { get => map; set => map = value; }
+        public Camera2D Camera { get => camera; set => camera = value; }
+        public int MyPlayerId { get => myPlayerId; set => myPlayerId = value; }
+        public Dictionary<int, Player> Players { get => players; set => players = value; }
+        public List<IEntity> Entities { get => entities; set => entities = value; }
+        public Humper.World CollisionWorld { get => collisionWorld; set => collisionWorld = value; }
+
+        public World()
         {
-            players.Clear();
-            entities.Clear();
-            map = new WorldMap(level);
-            collisionWorld = map.world;
-            if(Network.NetStatus.Single || Network.NetStatus.Server)
-            {
-                myPlayerId = -1;
-                players[-1] = new Player(myPlayerId);
-            }
-            camera = new Camera2D();
-            camera.Focus = players[myPlayerId];
+
         }
-        public static void LoadWorld(System.Drawing.Bitmap level)
+        public void LoadWorld(string level = "Level3.png")
         {
+            World world = new World();
+            world.Players.Clear();
+            world.Entities.Clear();
+            world.Map = new WorldMap(world, level);
+            world.CollisionWorld = map.collisionWorld;
+            if(Network.NetStatus.Single || Network.NetStatus.Server)
+            {
+                world.MyPlayerId = -1;
+                world.Players[-1] = new Player(world, myPlayerId);
+            }
+            world.Camera = new Camera2D();
+            world.Camera.Focus = players[myPlayerId];
+        }
+        public void LoadWorld(System.Drawing.Bitmap level)
+        {
+            World world = new World();
             players.Clear();
             entities.Clear();
-            map = new WorldMap(level);
-            collisionWorld = map.world;
+            map = new WorldMap(world, level);
+            collisionWorld = map.collisionWorld;
             if(Network.NetStatus.Single || Network.NetStatus.Server)
             {
                 myPlayerId = -1;
-                players[-1] = new Player(myPlayerId);
+                players[-1] = new Player(world, myPlayerId);
                 camera = new Camera2D();
                 camera.Focus = players[myPlayerId];
             }
         }
 
-        public static void LoadEntities(List<EntityData> entities)
+        public void LoadEntities(List<EntityData> entities)
         {
             entities.AddRange(entities);
         }
 
-        public static void LoadPlayers(List<PlayerData> playersData)
+        public void LoadPlayers(List<PlayerData> playersData)
         {
             foreach (var playerData in playersData)
             {
                 LoadPlayer(playerData, false);
             }
         }
-        public static void LoadPlayer(PlayerData playerData, bool local)
+        public void LoadPlayer(PlayerData playerData, bool local)
         {
             lock (players)
             {
-                players[playerData.ID] = new Player(playerData);
+                players[playerData.ID] = new Player(this, playerData);
                 if (local)
                 {
                     myPlayerId = playerData.ID;
@@ -74,14 +87,14 @@ namespace Cyberfuck
                 }
             }
         }
-        public static void RemovePlayer(int id)
+        public void RemovePlayer(int id)
         {
             lock (players)
             {
                 players.Remove(id);
             }
         }
-        public static void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             if(!NetStatus.Single)
                 CyberFuck.netPlay.SnapShot();

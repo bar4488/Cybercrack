@@ -14,6 +14,7 @@ namespace Cyberfuck.Entities
 {
     public class Player : IFocusable, IEntity
     {
+        World world;
         Point velocity;
         IBox box;
         const int JUMP_VELOCITY = 24;
@@ -42,19 +43,21 @@ namespace Cyberfuck.Entities
 
         public int ID => id;
 
-        public Player(int id)
+        public Player(World world, int id)
         {
+            this.world = world;
             this.id = id;
             Velocity = Point.Zero;
-            box = World.collisionWorld.Create(World.collisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
+            box = world.CollisionWorld.Create(world.CollisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
         }
 
-        public Player(PlayerData playerData)
+        public Player(World world, PlayerData playerData)
         {
+            this.world = world;
             this.id = playerData.ID;
             this.Velocity = playerData.Entity.Velocity;
-            this.box = World.collisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
+            this.box = world.CollisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
         }
         public void Draw(GameTime gameTime)
@@ -116,7 +119,7 @@ namespace Cyberfuck.Entities
             if (TileHits.Any((c) => c.Box.HasTag(Collider.Tile) && (c.Normal.Y < 0 && c.Box.Bounds.Left < Bounds.Right && c.Box.Bounds.Right > Bounds.Left)))
             {
                 jumpCount = 3;
-                if(ID == World.myPlayerId)
+                if(ID == world.MyPlayerId)
                 {
                     if (Input.IsKeyDown(Keys.Space))
                     {
@@ -134,7 +137,7 @@ namespace Cyberfuck.Entities
             }
             if(velY < FALL_SPEED)
                 velY += GRAVITY;
-            if(ID == World.myPlayerId)
+            if(ID == world.MyPlayerId)
             {
                 if (Input.IsKeyDown(Keys.Right) || Input.IsKeyDown(Keys.D))
                 {
@@ -182,7 +185,7 @@ namespace Cyberfuck.Entities
 
             Velocity = new Point(velX, velY);
 
-            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == World.myPlayerId)))
+            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == world.MyPlayerId)))
             {
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
             }

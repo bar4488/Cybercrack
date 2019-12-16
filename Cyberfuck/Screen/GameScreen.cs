@@ -11,19 +11,25 @@ namespace Cyberfuck.Screen
 {
     public class GameScreen: IScreen
     {
+        World world;
         public GameScreen(string level)
         {
             if(!NetStatus.Client)
-                World.LoadWorld(level);
+            {
+                world = new World();
+                world.LoadWorld(level);
+            }
         }
-        public GameScreen()
+        public GameScreen(World world)
         {
             if(!NetStatus.Client)
-                World.LoadWorld();
+            {
+                this.world = world;
+            }
         }
         public void Update(GameTime gameTime)
         {
-			World.Update(gameTime);
+			world.Update(gameTime);
 
 			if(Input.KeyWentDown(Keys.Escape))
 			{
@@ -39,7 +45,7 @@ namespace Cyberfuck.Screen
             spriteBatch.End();
             World.Draw(gameTime, spriteBatch);
             spriteBatch.Begin();
-            spriteBatch.DrawString(CyberFuck.font, String.Format("{0} players connected", NetStatus.playersCount), Vector2.Zero, Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+            spriteBatch.DrawString(CyberFuck.font, String.Format("{0} players connected", world.Players.Count), Vector2.Zero, Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
             spriteBatch.End();
         }
 

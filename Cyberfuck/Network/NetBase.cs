@@ -11,6 +11,12 @@ namespace Cyberfuck.Network
     public abstract class NetBase : INetBase
     {
         public event OnCloseEvent OnClose;
+        protected World world;
+
+        public NetBase(World world)
+        {
+            this.world = world;
+        }
         public void SendMessage(MessageContentType type, int player, IMessageContent data)
         {
             NetworkMessage msg;
@@ -31,7 +37,7 @@ namespace Cyberfuck.Network
         public virtual void Close(CloseReason reason)
         {
             OnClose?.Invoke(reason);
-            CyberFuck.netPlay?.SendMessage(MessageContentType.CloseConnection, NetStatus.Server ? -1 : World.myPlayerId, null);
+            CyberFuck.netPlay?.SendMessage(MessageContentType.CloseConnection, NetStatus.Server ? -1 : world.MyPlayerId, null);
         }
         public abstract void Update(GameTime gameTime);
     }

@@ -20,12 +20,13 @@ namespace Cyberfuck.Network
         public TcpClient conn;
         public NetworkStream stream;
         public readonly int id;
+        World world;
 
         public bool Connected { get => state == ConnectionState.Connected; }
         public ConnectionState State { get => state; set => state = value; }
         public NetworkStream Stream { get => stream; set => stream = value; }
 
-        public Connection(TcpClient conn)
+        public Connection(World world, TcpClient conn)
         {
             conn.NoDelay = true;
             this.conn = conn;
@@ -54,18 +55,18 @@ namespace Cyberfuck.Network
                 {
                     case MessageContentType.PlayerUpdate:
                         PlayerData playerData = PlayerData.Decode(message.Content);
-                        if(World.players.ContainsKey(playerData.ID))
-                            World.players[playerData.ID].Apply(playerData);
+                        if(world.Players.ContainsKey(playerData.ID))
+                            world.Players[playerData.ID].Apply(playerData);
                         else
                         {
-                            World.LoadPlayer(playerData, false);
+                            world.LoadPlayer(playerData, false);
                         }
                         break;
                     case MessageContentType.EntityData:
                         break;
                     case MessageContentType.RemovePlayer:
                         RemovePlayerData data = RemovePlayerData.Decode(message.Content);
-                        World.RemovePlayer(data.playerId);
+                        world.RemovePlayer(data.playerId);
                         break;
                     default:
                         throw new NotImplementedException();

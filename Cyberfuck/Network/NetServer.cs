@@ -23,7 +23,7 @@ namespace Cyberfuck.Network
         Connection[] clients = new Connection[MaxClients];
         TcpListener listener;
         bool connected;
-        public NetServer(int port)
+        public NetServer(World world, int port): base(world)
         {
             CyberFuck.Logger.Log("starting server");
             listener = new TcpListener(IPAddress.Any, port);
@@ -48,7 +48,7 @@ namespace Cyberfuck.Network
                     catch(System.IO.IOException e)
                     {
                         clients[i].Close();
-                        World.RemovePlayer(i);
+                        world.RemovePlayer(i);
                         SendMessage(MessageContentType.RemovePlayer, -1, new RemovePlayerData(i));
                     }
                 }
@@ -57,7 +57,7 @@ namespace Cyberfuck.Network
 
         public override void SnapShot()
         {
-            previousSnapshot = ServerSnapshot.Snapshot();
+            previousSnapshot = ServerSnapshot.Snapshot(world);
         }
 
         public override void Close(CloseReason reason)
@@ -74,7 +74,7 @@ namespace Cyberfuck.Network
         public override void Update(GameTime gameTime)
         {
             // send data to clients based on the difference between this snapshot and the previous one
-            ServerSnapshot snapshot = ServerSnapshot.Snapshot();
+            ServerSnapshot snapshot = ServerSnapshot.Snapshot(world);
             foreach (var playerKV in snapshot.playersData)
             {
                 if(previousSnapshot.playersData[playerKV.Key] != playerKV.Value)
@@ -108,7 +108,7 @@ namespace Cyberfuck.Network
                     TcpClient client = listener.AcceptTcpClient();
                     lock (clients)
                     {
-                        if(NetStatus.playersCount < MaxClients)
+                        if(world.Players.Count < MaxClients)
                         {
                             for (int i = 0; i < MaxClients; i++)
                             {
@@ -140,7 +140,7 @@ namespace Cyberfuck.Network
             Connection conn = (Connection)data;
             NetworkStream stream = conn.stream;
             //send the world bitmap to the client:
-            Bitmap worldBitmap = World.map.bitmap;
+            Bitmap worldBitmap = world.Map.bitmap;
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memmory = new MemoryStream())
             {
@@ -153,8 +153,8 @@ namespace Cyberfuck.Network
                 stream.Write(image, 0, image.Length);
             }
             //send entities data (not players):
-            byte[][] entitiesBytes = new byte[World.entities.Count][];
-            List<IEntity> entities = World.entities;
+            byte[][] entitiesBytes = new byte[world.Entities.Count][];
+            List<IEntity> entities = world.Entities;
             for(int i = 0; i < entities.Count; i++)
             {
                 entitiesBytes[i] = new EntityData(entities[i]).Encode();
@@ -165,9 +165,9 @@ namespace Cyberfuck.Network
             stream.Write(entitiesMsg, 0, entitiesMsg.Length);
 
             //send all players data:
-            List<Player> players = World.players.Values.ToList();
+            List<Player> players = world.Players.Values.ToList();
 
-            byte[][] playersBytes = new byte[World.players.Count][];
+            byte[][] playersBytes = new byte[world.Players.Count][];
             for(int i = 0; i < players.Count; i++)
             {
                 playersBytes[i] = new PlayerData(players[i]).Encode();
@@ -188,12 +188,12 @@ namespace Cyberfuck.Network
             }
             // create a player for the client and 
             // send the client its position 
-            Player clietnPlayer = new Player(conn.id);
+            Player clietnPlayer = new Player(world, conn.id);
             byte[] clientsPlayerBytes = new PlayerData(clietnPlayer).Encode();
             stream.Write(BitConverter.GetBytes(clientsPlayerBytes.Length), 0, sizeof(int));
             stream.Write(clientsPlayerBytes, 0, clientsPlayerBytes.Length);
             CyberFuck.Logger.Log("Network", "player with id " + conn.id + " added");
-            World.players[conn.id] = clietnPlayer;
+            world.Players[conn.id] = clietnPlayer;
             conn.State = ConnectionState.Connected;
         }
     }

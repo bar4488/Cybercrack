@@ -18,7 +18,8 @@ namespace Cyberfuck
     {
         public System.Drawing.Bitmap bitmap;
         public Tile[,] tileMap;
-        public Humper.World world;
+        public Humper.World collisionWorld;
+        World world;
 
         public int Width => tileMap.GetLength(0);
         public int Height => tileMap.GetLength(1);
@@ -34,11 +35,12 @@ namespace Cyberfuck
             return Tile.None;
         }
 
-        public WorldMap(System.Drawing.Bitmap map)
+        public WorldMap(World world, System.Drawing.Bitmap map)
         {
+            this.world = world;
             bitmap = map;
             tileMap = new Tile[map.Width, map.Height];
-            world = new Humper.World(map.Width * Constants.TILE_SIZE, map.Height * Constants.TILE_SIZE);
+            collisionWorld = new Humper.World(map.Width * Constants.TILE_SIZE, map.Height * Constants.TILE_SIZE);
             
             for(int x = 0; x < Width; x++)
             {
@@ -47,13 +49,13 @@ namespace Cyberfuck
                     tileMap[x, y] = GetTile(x, y);
                     if (tileMap[x,y] == Tile.Dirt)
                     {
-                        world.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
+                        collisionWorld.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
                     }
 
                 }
             }
         }
-        public WorldMap(string level = "Level1.png"): this(new System.Drawing.Bitmap(@"Content/Levels/" + level))
+        public WorldMap(World world, string level = "Level1.png"): this(world, new System.Drawing.Bitmap(@"Content/Levels/" + level))
         {
         }
         public void Draw(GameTime gameTime)
@@ -61,7 +63,7 @@ namespace Cyberfuck
             int width = CyberFuck.graphics.GraphicsDevice.Viewport.Width;
             int height = CyberFuck.graphics.GraphicsDevice.Viewport.Height;
 
-            Point cameraPosition = World.camera.Position;
+            Point cameraPosition = world.Camera.Position;
             int startTileX = (int)((cameraPosition.X - width / 2) / 16 - 1);
             int startTileY = (int)((cameraPosition.Y - height / 2) / 16 - 1);
             int endTileX = (int)((cameraPosition.X + width / 2) / 16 + 2);
