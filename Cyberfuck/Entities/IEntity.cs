@@ -14,6 +14,7 @@ namespace Cyberfuck.Entities
         Point Velocity { get; }
         Vector2 TilePosition { get; }
         Vector2 TileVelocity { get; }
+        int Health { get; }
         int Width { get; }
         int Height { get; }
     }

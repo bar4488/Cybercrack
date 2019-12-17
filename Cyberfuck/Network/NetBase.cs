@@ -37,7 +37,7 @@ namespace Cyberfuck.Network
         public virtual void Close(CloseReason reason)
         {
             OnClose?.Invoke(reason);
-            CyberFuck.netPlay?.SendMessage(MessageContentType.CloseConnection, NetStatus.Server ? -1 : world.MyPlayerId, null);
+            CyberFuck.netPlay?.SendMessage(MessageContentType.CloseConnection, world.NetType == NetType.Server ? -1 : world.MyPlayerId, null);
         }
         public abstract void Update(GameTime gameTime);
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,6 +10,7 @@ using Humper;
 using Humper.Responses;
 using Cyberfuck.Network;
 using Cyberfuck.Data;
+using Cyberfuck.Damage;
 
 namespace Cyberfuck.Entities
 {
@@ -27,21 +29,23 @@ namespace Cyberfuck.Entities
         bool onGound = false;
         bool midLand = true;
         int fallStart = 0;
+        int health = 100;
+        bool dead = false;
+
 
         PlayerData oldPlayer;
-        PlayerData toApply;
 
+        public int ID => id;
         public Texture2D Texture { get => CyberFuck.textures["player"]; }
         public EntityType Type { get => EntityType.Player; }
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
-        public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height); }
         public Point Velocity { get => velocity; set => velocity = value; }
+        public Rectangle Bounds { get => new Rectangle((int)box.X, (int)box.Y, (int)box.Bounds.Width, (int)box.Bounds.Height); }
         public Vector2 TilePosition => new Vector2(box.X / 16, box.Y / 16);
         public Vector2 TileVelocity => new Vector2(velocity.X / 16, velocity.Y / 16);
         public int Width => Texture.Width;
         public int Height => Texture.Height;
-
-        public int ID => id;
+        public int Health => health;
 
         public Player(World world, int id)
         {
@@ -62,11 +66,21 @@ namespace Cyberfuck.Entities
         }
         public void Draw(GameTime gameTime)
         {
-            CyberFuck.spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+            Vector2 screenSize = new Vector2(CyberFuck.graphics.GraphicsDevice.Viewport.Width, CyberFuck.graphics.GraphicsDevice.Viewport.Height);
+
+            if(!dead)
+                CyberFuck.spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+            else
+            {
+                if(world.MyPlayerId == ID)
+                    CyberFuck.spriteBatch.DrawString(CyberFuck.font, "In my heart you shall forever remain", new Vector2(screenSize.X / 2, 100), Color.Red);
+            }
         }
 
         public void Update(GameTime gameTime)
         {
+            if (dead)
+                return;
             oldPlayer = new PlayerData(this);
             int velX = Velocity.X;
             int velY = Velocity.Y;
@@ -76,9 +90,8 @@ namespace Cyberfuck.Entities
                 {
                     return CollisionResponses.Slide;
                 }
-                if (collision.Other.HasTag(Collider.Slope))
-                    if (collision.Other.HasTag(Collider.Player))
-                        return CollisionResponses.Ignore;
+                if (collision.Other.HasTag(Collider.Player))
+                    return CollisionResponses.Ignore;
                 return CollisionResponses.Cross;
             });
             IEnumerable<IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
@@ -94,6 +107,7 @@ namespace Cyberfuck.Entities
                     if(deltaY > 300)
                     {
                         velY = -4;
+                        Damage(30, DamageReason.Fall, "");
                         midLand = true;
                     }
                 }
@@ -123,7 +137,7 @@ namespace Cyberfuck.Entities
                 {
                     if (Input.IsKeyDown(Keys.Space))
                     {
-                        if(jumpCount > 0 || true)
+                        if(jumpCount > 0)
                         {
                             jumpCount--;
                             velY = -JUMP_VELOCITY;
@@ -154,15 +168,7 @@ namespace Cyberfuck.Entities
                     if(jumpCount > 0)
                     {
                         jumpCount--;
-                        velY = -JUMP_VELOCITY;
-                    }
-                }
-
-                if (Input.KeyWentDown(Keys.Space) || Input.KeyWentDown(Keys.Up))
-                {
-                    if (jumpCount > 0 || true)
-                    {
-                        jumpCount--;
+                        fallStart = Position.Y;
                         velY = -JUMP_VELOCITY;
                     }
                 }
@@ -185,19 +191,54 @@ namespace Cyberfuck.Entities
 
             Velocity = new Point(velX, velY);
 
-            if(oldPlayer != this && (NetStatus.Server || (NetStatus.Client && ID == world.MyPlayerId)))
+            if(oldPlayer != this && (world.NetType == NetType.Server || (world.NetType == NetType.Client && ID == world.MyPlayerId)))
             {
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
             }
+        }
+
+        public void Damage(int amount, Damage.DamageReason reason, string other)
+        {
+            health -= amount;
+            // if server, send new health to all players
+            // not needed
+            
+            if (health < 0)
+                Kill();
+        }
+        public void Kill()
+        {
+            dead = true;
+            // if server send that the player has died
+            Thread t = new Thread(() =>
+            {
+                Thread.Sleep(1000);
+                Respawn();
+            });
+            t.Start();
+        }
+
+        public void Respawn()
+        {
+            dead = false;
+            var d = new PlayerData(
+                new EntityData(
+                    EntityType.Player, 
+                    100, 
+                    new Point((int)world.CollisionWorld.Bounds.Width / 2, 0), 
+                    Point.Zero), 
+                ID);
+            Apply(d);
         }
 
         public void Apply(PlayerData toApply)
         {
             if (this.ID != toApply.ID)
                 throw new Exception("id doesnt match");
-            if(NetStatus.Server)
+            if(world.NetType == NetType.Server)
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, this.ID, toApply);
             this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
+            this.health = toApply.Entity.Health;
             this.velocity = toApply.Entity.Velocity;
         }
 

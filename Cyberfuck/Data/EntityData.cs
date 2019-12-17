@@ -10,22 +10,25 @@ namespace Cyberfuck.Data
 {
     public struct EntityData: IMessageContent
     {
-        public const int ContentLength = 5 * sizeof(int);
+        public const int ContentLength = 6 * sizeof(int);
 
         public EntityType Type;
+        public int Health;
         public Point Position;
         public Point Velocity;
 
         public MessageContentType ContentType => MessageContentType.EntityData;
 
-        public EntityData(EntityType type, Point position, Point velocity)
+        public EntityData(EntityType type, int health, Point position, Point velocity)
         {
+            this.Health = health;
             this.Type = type;
             this.Position = position;
             this.Velocity = velocity;
         }
         public EntityData(IEntity entity)
         {
+            this.Health = entity.Health;
             Type = entity.Type;
             Position = entity.Position;
             Velocity = entity.Velocity;
@@ -33,7 +36,7 @@ namespace Cyberfuck.Data
 
         public static bool operator ==(EntityData d, EntityData o)
         {
-            return d.Position == o.Position && d.Velocity == o.Velocity && d.Type == o.Type;
+            return d.Position == o.Position && d.Velocity == o.Velocity && d.Type == o.Type && d.Health == o.Health;
         }
 
         public static bool operator !=(EntityData d, EntityData o)
@@ -66,7 +69,7 @@ namespace Cyberfuck.Data
             int posY = this.Position.Y;
             int velX = this.Velocity.X;
             int velY = this.Velocity.Y;
-            int[] dataArr = new int[] { type, posX, posY, velX, velY};
+            int[] dataArr = new int[] { type, Health, posX, posY, velX, velY };
             byte[] msg = new byte[dataArr.Length * sizeof(int)];
             Buffer.BlockCopy(dataArr, 0, msg, 0, msg.Length);
             return msg;
@@ -74,9 +77,9 @@ namespace Cyberfuck.Data
 
         public static EntityData Decode(byte[] data)
         {
-            int[] result = new int[data.Length / 4];
+            int[] result = new int[data.Length / sizeof(int)];
             Buffer.BlockCopy(data, 0, result, 0, data.Length);
-            return new EntityData((EntityType)result[0], new Point(result[1], result[2]), new Point(result[3], result[4]));
+            return new EntityData((EntityType)result[0], result[1], new Point(result[2], result[3]), new Point(result[4], result[5]));
         }
 
     }

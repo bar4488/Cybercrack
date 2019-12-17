@@ -15,7 +15,7 @@ namespace Cyberfuck.Data
 
         public MessageContentType ContentType => MessageContentType.PlayerUpdate;
 
-        private PlayerData(EntityData entityData, int id)
+        public PlayerData(EntityData entityData, int id)
         {
             this.Entity = entityData;
             this.ID = id;

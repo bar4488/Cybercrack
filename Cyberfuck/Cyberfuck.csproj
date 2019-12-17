@@ -104,7 +104,6 @@
     <Compile Include="Network\NetBase.cs" />
     <Compile Include="Network\NetClient.cs" />
     <Compile Include="Network\NetServer.cs" />
-    <Compile Include="Network\NetStatus.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Data\EntityData.cs" />
     <Compile Include="Data\PlayerData.cs" />

@@ -48,24 +48,24 @@ namespace Cyberfuck
 
 		public static void Start(string level)
 		{
-			NetStatus.Type = NetType.Single;
 			Screen = new GameScreen(level);
+			((GameScreen)Screen).World.NetType = NetType.Single;
 		}
 		public static void Join(string ip, int port)
 		{
-			NetStatus.Type = NetType.Client;
 			netPlay = new NetClient(ip, port);
             ((NetClient)netPlay).OnConnected += world =>
             {
+                world.NetType = NetType.Client;
                 Screen = new GameScreen(world);
             };
 		}
 
         public static void Host(string level)
 		{
-			NetStatus.Type = NetType.Server;
 			if (!(Screen is GameScreen))
 				Screen = new GameScreen(level);
+			((GameScreen)Screen).World.NetType = NetType.Server;
 			netPlay = new NetServer(((GameScreen)Screen).World, 1234);
 		}
 		protected override void Update(GameTime gameTime)

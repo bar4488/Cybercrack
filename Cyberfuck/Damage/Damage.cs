@@ -6,6 +6,11 @@ using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Damage
 {
+    public enum DamageReason
+    {
+        Fall,
+        Hit,
+    }
     class Damage
     {
         Vector2 position;

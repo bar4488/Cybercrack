@@ -12,53 +12,52 @@ namespace Cyberfuck
 {
     public class World
     {
-        private static Humper.World collisionWorld;
-        private static WorldMap map;
-        private static Camera2D camera;
-        private static int myPlayerId;
-        private static Dictionary<int, Player> players = new Dictionary<int, Player>();
-        private static List<IEntity> entities = new List<IEntity>();
-
-        public Player Player { get => players[myPlayerId]; }
-        public WorldMap Map { get => map; set => map = value; }
-        public Camera2D Camera { get => camera; set => camera = value; }
-        public int MyPlayerId { get => myPlayerId; set => myPlayerId = value; }
-        public Dictionary<int, Player> Players { get => players; set => players = value; }
-        public List<IEntity> Entities { get => entities; set => entities = value; }
-        public Humper.World CollisionWorld { get => collisionWorld; set => collisionWorld = value; }
+        public Player Player { get => Players[MyPlayerId]; }
+        public NetType NetType { get; set; }
+        public WorldMap Map { get; set; }
+        public Camera2D Camera { get; set; }
+        public int MyPlayerId { get; set; }
+        public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
+        public List<IEntity> Entities { get; set; } = new List<IEntity>();
+        public Humper.World CollisionWorld { get; set; }
 
         public World()
         {
 
         }
+
+        public World(int myPlayerId, Dictionary<int, Player> players)
+        {
+            this.MyPlayerId = myPlayerId;
+            this.Players = players;
+        }
+
         public void LoadWorld(string level = "Level3.png")
         {
-            World world = new World();
-            world.Players.Clear();
-            world.Entities.Clear();
-            world.Map = new WorldMap(world, level);
-            world.CollisionWorld = map.collisionWorld;
-            if(Network.NetStatus.Single || Network.NetStatus.Server)
+            this.Players.Clear();
+            this.Entities.Clear();
+            this.Map = new WorldMap(this, level);
+            this.CollisionWorld = Map.collisionWorld;
+            if(NetType == NetType.Single || NetType == NetType.Server)
             {
-                world.MyPlayerId = -1;
-                world.Players[-1] = new Player(world, myPlayerId);
+                this.MyPlayerId = -1;
+                this.Players[-1] = new Player(this, MyPlayerId);
             }
-            world.Camera = new Camera2D();
-            world.Camera.Focus = players[myPlayerId];
+            this.Camera = new Camera2D();
+            this.Camera.Focus = Players[MyPlayerId];
         }
         public void LoadWorld(System.Drawing.Bitmap level)
         {
-            World world = new World();
-            players.Clear();
-            entities.Clear();
-            map = new WorldMap(world, level);
-            collisionWorld = map.collisionWorld;
-            if(Network.NetStatus.Single || Network.NetStatus.Server)
+            Players.Clear();
+            Entities.Clear();
+            Map = new WorldMap(this, level);
+            CollisionWorld = Map.collisionWorld;
+            if(NetType == NetType.Single || NetType == NetType.Server)
             {
-                myPlayerId = -1;
-                players[-1] = new Player(world, myPlayerId);
-                camera = new Camera2D();
-                camera.Focus = players[myPlayerId];
+                MyPlayerId = -1;
+                Players[-1] = new Player(this, MyPlayerId);
+                Camera = new Camera2D();
+                Camera.Focus = Players[MyPlayerId];
             }
         }
 
@@ -76,41 +75,41 @@ namespace Cyberfuck
         }
         public void LoadPlayer(PlayerData playerData, bool local)
         {
-            lock (players)
+            lock (Players)
             {
-                players[playerData.ID] = new Player(this, playerData);
+                Players[playerData.ID] = new Player(this, playerData);
                 if (local)
                 {
-                    myPlayerId = playerData.ID;
-                    camera = new Camera2D();
-                    camera.Focus = players[myPlayerId];
+                    MyPlayerId = playerData.ID;
+                    Camera = new Camera2D();
+                    Camera.Focus = Players[MyPlayerId];
                 }
             }
         }
         public void RemovePlayer(int id)
         {
-            lock (players)
+            lock (Players)
             {
-                players.Remove(id);
+                Players.Remove(id);
             }
         }
         public void Update(GameTime gameTime)
         {
-            if(!NetStatus.Single)
+            if(NetType != NetType.Single)
                 CyberFuck.netPlay.SnapShot();
-            lock (players)
+            lock (Players)
             {
-                foreach (var player in players.Values.ToArray())
+                foreach (var player in Players.Values.ToArray())
                 {
                     player.Update(gameTime);
                 }
             }
-            camera.Update(gameTime);
-            if(!NetStatus.Single)
+            Camera.Update(gameTime);
+            if(NetType != NetType.Single)
                 CyberFuck.netPlay.Update(gameTime);
         }
 
-        public static void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 			spriteBatch.Begin(
 				SpriteSortMode.Deferred,
@@ -119,12 +118,12 @@ namespace Cyberfuck
 				DepthStencilState.None,
 				RasterizerState.CullCounterClockwise,
 				null,
-				camera.Transform
+				Camera.Transform
 			);
-            map.Draw(gameTime);
-            lock (players)
+            Map.Draw(gameTime);
+            lock (Players)
             {
-                foreach (var player in players.Values.ToArray())
+                foreach (var player in Players.Values.ToArray())
                 {
                     player.Draw(gameTime);
                 }

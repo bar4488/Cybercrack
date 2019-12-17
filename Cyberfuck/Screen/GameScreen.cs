@@ -40,7 +40,7 @@ namespace Cyberfuck.Screen
             spriteBatch.Begin();
             spriteBatch.Draw(CyberFuck.textures["background"], mainFrame, Color.White);
             spriteBatch.End();
-            World.Draw(gameTime, spriteBatch);
+            world.Draw(gameTime, spriteBatch);
             spriteBatch.Begin();
             spriteBatch.DrawString(CyberFuck.font, String.Format("{0} players connected", world.Players.Count), Vector2.Zero, Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
             spriteBatch.End();
