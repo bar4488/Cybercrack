@@ -11,7 +11,7 @@ namespace Cyberfuck.Damage
         Fall,
         Hit,
     }
-    class Damage
+    class DamageField
     {
         Vector2 position;
         Vector2 velocity;
@@ -20,7 +20,7 @@ namespace Cyberfuck.Damage
         public Vector2 Velocity { get => velocity; set => velocity = value; }
         public int DamageAmount { get => damageAmount; set => damageAmount = value; }
 
-        public Damage(Vector2 position, Vector2 velocity)
+        public DamageField(Vector2 position, Vector2 velocity)
         {
             this.position = position;
             this.velocity = velocity;

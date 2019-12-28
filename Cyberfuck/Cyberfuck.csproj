@@ -83,7 +83,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
-    <Compile Include="Damage\Damage.cs" />
+    <Compile Include="Damage\DamageField.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
     <Compile Include="Data\CloseConnectionData.cs" />
     <Compile Include="Data\RemovePlayerData.cs" />
@@ -115,8 +115,8 @@
     <Compile Include="Screen\IScreen.cs" />
     <Compile Include="Screen\MainScreen.cs" />
     <Compile Include="Screen\MenuScreen.cs" />
-    <Compile Include="World.cs" />
-    <Compile Include="WorldMap.cs" />
+    <Compile Include="World\World.cs" />
+    <Compile Include="World\WorldMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Content.mgcb" />
