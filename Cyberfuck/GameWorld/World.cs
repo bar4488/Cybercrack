@@ -8,7 +8,7 @@ using Cyberfuck.Entities;
 using Cyberfuck.Data;
 using Cyberfuck.Network;
 
-namespace Cyberfuck
+namespace Cyberfuck.GameWorld
 {
     public class World
     {

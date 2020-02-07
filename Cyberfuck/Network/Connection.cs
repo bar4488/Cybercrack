@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using Cyberfuck.Data;
+using Cyberfuck.GameWorld;
 
 namespace Cyberfuck.Network
 {

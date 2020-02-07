@@ -9,7 +9,7 @@ using Cyberfuck.Data;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Drawing;
-using Cyberfuck.Screen;
+using Cyberfuck.GameWorld;
 using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network

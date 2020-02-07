@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cyberfuck.Entities;
-using Cyberfuck.Data;
+using Cyberfuck.GameWorld;
 using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network

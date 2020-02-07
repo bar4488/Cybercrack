@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Cyberfuck.Entities;
 using Cyberfuck.Data;
+using Cyberfuck.GameWorld;
 using Microsoft.Xna.Framework;
 
 namespace Cyberfuck.Network

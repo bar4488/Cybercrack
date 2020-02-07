@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Cyberfuck
+namespace Cyberfuck.GameWorld
 {
     public enum Tile
     {

@@ -84,6 +84,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
     <Compile Include="Damage\DamageField.cs" />
+    <Compile Include="Damage\Shot.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
     <Compile Include="Data\CloseConnectionData.cs" />
     <Compile Include="Data\RemovePlayerData.cs" />
@@ -115,8 +116,10 @@
     <Compile Include="Screen\IScreen.cs" />
     <Compile Include="Screen\MainScreen.cs" />
     <Compile Include="Screen\MenuScreen.cs" />
-    <Compile Include="World\World.cs" />
-    <Compile Include="World\WorldMap.cs" />
+    <Compile Include="GameWorld\Perlin.cs" />
+    <Compile Include="GameWorld\World.cs" />
+    <Compile Include="GameWorld\WorldGen.cs" />
+    <Compile Include="GameWorld\WorldMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Content.mgcb" />
