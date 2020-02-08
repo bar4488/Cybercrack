@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Cyberfuck.GameWorld;
 
 
 namespace Cyberfuck.Damage
@@ -15,9 +16,9 @@ namespace Cyberfuck.Damage
         public DamageField Damage { get => damage; set => damage = value; }
         public Texture2D Texture { get => CyberFuck.textures["shot"]; }
 
-        public Shot(Vector2 position, Vector2 velocity)
+        public Shot(World world, Vector2 position, Vector2 velocity)
         {
-            damage = new DamageField(position, velocity);
+            damage = new DamageField(world, position, velocity, new Vector2(Texture.Width, Texture.Height));
         }
 
         public void Update(GameTime gameTime)

@@ -207,7 +207,8 @@ namespace Cyberfuck.Entities
                     Vector2 mouseDirection = (mousePositionV - VPosition);
                     mouseDirection.Normalize();
                     Console.WriteLine(mouseDirection);
-                    shots.Add(new Shot(VPosition, mouseDirection * 15));
+                    shots.Add(new Shot(world, VPosition, mouseDirection * 15));
+                    directionRight = mouseDirection.X > 0;
 
                 }
 
