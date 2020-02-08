@@ -65,6 +65,29 @@ namespace Cyberfuck.Network
                             world.LoadPlayer(playerData, false);
                         }
                         break;
+                    case MessageContentType.AddTile:
+                        AddTileData tileData = AddTileData.Decode(message.Content);
+                        world.Map.AddTile(tileData.x, tileData.y, (Tile)tileData.tile);
+                        break;
+                    case MessageContentType.InventoryUpdate:
+                        InventoryData inventoryData = InventoryData.Decode(message.Content);
+                        world.Players[inventoryData.playerId].Apply(inventoryData);
+                        break;
+                    case MessageContentType.UseItem:
+                        UseItemData useItemData = UseItemData.Decode(message.Content);
+                        var player = world.Players[useItemData.player];
+                        switch (useItemData.useType)
+                        {
+                            case 0:
+                                player.Use(useItemData.mousePosition);
+                                break;
+                            case 1:
+                                player.SecondUse(useItemData.mousePosition);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     case MessageContentType.EntityData:
                         break;
                     case MessageContentType.RemovePlayer:

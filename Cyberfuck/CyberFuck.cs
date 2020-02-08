@@ -20,11 +20,12 @@ namespace Cyberfuck
         Player = 1 << 2,
 		// a tile which the user can step on
         Slope = 1 << 3,
+		Damage = 1<<4,
     }
 	public partial class CyberFuck : Game
 	{
 		public static SpriteFont font;
-		public static Dictionary<string, Texture2D> textures;
+		private static Dictionary<string, Texture2D> Textures;
 		public static INetBase netPlay;
 		public static IScreen Screen;
 		private static ILogger logger = new ConsoleLogger();
@@ -56,7 +57,6 @@ namespace Cyberfuck
 			netPlay = new NetClient(ip, port);
             ((NetClient)netPlay).OnConnected += world =>
             {
-                world.NetType = NetType.Client;
                 Screen = new GameScreen(world);
             };
 		}

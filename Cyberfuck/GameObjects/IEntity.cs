@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 
-namespace Cyberfuck.Entities
+namespace Cyberfuck.GameObjects
 {
-    public interface IEntity
+    public interface IEntity: IGameObject
     {
         EntityType Type { get; }
         int ID { get; }
+        bool NPC { get; }
         Point Position { get; }
         Point Velocity { get; }
         Vector2 TilePosition { get; }

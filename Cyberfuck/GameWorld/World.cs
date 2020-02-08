@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Cyberfuck.Entities;
+using Cyberfuck.GameObjects;
 using Cyberfuck.Data;
 using Cyberfuck.Network;
 
@@ -19,6 +19,7 @@ namespace Cyberfuck.GameWorld
         public int MyPlayerId { get; set; }
         public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
         public List<IEntity> Entities { get; set; } = new List<IEntity>();
+        public List<IGameObject> GameObjects { get; set; } = new List<IGameObject>();
         public Humper.World CollisionWorld { get; set; }
 
         public World()
@@ -42,9 +43,10 @@ namespace Cyberfuck.GameWorld
             {
                 this.MyPlayerId = -1;
                 this.Players[-1] = new Player(this, MyPlayerId);
+                GameObjects.Add(Players[-1]);
+                this.Camera = new Camera2D();
+                this.Camera.Focus = Players[MyPlayerId];
             }
-            this.Camera = new Camera2D();
-            this.Camera.Focus = Players[MyPlayerId];
         }
         public void LoadWorld(System.Drawing.Bitmap level)
         {
@@ -56,14 +58,22 @@ namespace Cyberfuck.GameWorld
             {
                 MyPlayerId = -1;
                 Players[-1] = new Player(this, MyPlayerId);
+                GameObjects.Add(Players[-1]);
                 Camera = new Camera2D();
                 Camera.Focus = Players[MyPlayerId];
             }
         }
-
+        public void AddTile(int x, int y, Tile tile)
+        {
+            if(NetType != NetType.Single)
+            {
+                CyberFuck.netPlay.SendMessage(MessageContentType.AddTile, -1, new AddTileData(x, y, tile));
+            }
+            Map.AddTile(x, y, tile);
+        }
+        // TODO: ADD IMPLEMENTATION!
         public void LoadEntities(List<EntityData> entities)
         {
-            entities.AddRange(entities);
         }
 
         public void LoadPlayers(List<PlayerData> playersData)
@@ -75,12 +85,25 @@ namespace Cyberfuck.GameWorld
         }
         public void LoadPlayer(PlayerData playerData, bool local)
         {
+            if (local)
+                MyPlayerId = playerData.ID;
+            LoadPlayer(new Player(this, playerData));
+        }
+        public void LoadPlayer(Player player)
+        {
+            lock (GameObjects)
+            {
+                if (Players.ContainsKey(player.ID))
+                {
+                    GameObjects.Remove(Players[player.ID]);
+                }
+                GameObjects.Add(player);
+            }
             lock (Players)
             {
-                Players[playerData.ID] = new Player(this, playerData);
-                if (local)
+                Players[player.ID] = player;
+                if (player.ID == MyPlayerId)
                 {
-                    MyPlayerId = playerData.ID;
                     Camera = new Camera2D();
                     Camera.Focus = Players[MyPlayerId];
                 }
@@ -88,6 +111,11 @@ namespace Cyberfuck.GameWorld
         }
         public void RemovePlayer(int id)
         {
+            Player player = Players[id];
+            lock (GameObjects)
+            {
+                GameObjects.Remove(player);
+            }
             lock (Players)
             {
                 Players.Remove(id);
@@ -97,11 +125,11 @@ namespace Cyberfuck.GameWorld
         {
             if(NetType != NetType.Single)
                 CyberFuck.netPlay.SnapShot();
-            lock (Players)
+            lock (GameObjects)
             {
-                foreach (var player in Players.Values.ToArray())
+                foreach (var gameObj in GameObjects)
                 {
-                    player.Update(gameTime);
+                    gameObj.Update(gameTime);
                 }
             }
             Camera.Update(gameTime);
@@ -121,11 +149,26 @@ namespace Cyberfuck.GameWorld
 				Camera.Transform
 			);
             Map.Draw(gameTime);
-            lock (Players)
+            lock (GameObjects)
             {
-                foreach (var player in Players.Values.ToArray())
+                foreach (var gameObject in GameObjects)
                 {
-                    player.Draw(gameTime);
+                    gameObject.Draw(spriteBatch, gameTime);
+                }
+            }
+            spriteBatch.End();
+            spriteBatch.Begin();
+            Color a = Color.White;
+            a.A = 100;
+            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(0, 0, 210 + 48 * 10, 36), a);
+            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(2, 18, Players[MyPlayerId].Health * 2, 16), Color.Green);
+            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(2 + Players[MyPlayerId].Health * 2, 18, 200 - Players[MyPlayerId].Health * 2, 16), Color.Red);
+            for (int i = 0; i < 10; i++)
+            {
+                spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(210 + 8 + i * 48, 2, 32, 32), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
+                if(Player.Inventory[i] != null)
+                {
+                    spriteBatch.Draw(Player.Inventory[i].Texture, new Rectangle(210 + 8 + i * 48, 2, 28, 28), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
                 }
             }
             spriteBatch.End();

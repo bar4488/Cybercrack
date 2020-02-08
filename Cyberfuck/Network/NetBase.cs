@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Cyberfuck.Entities;
+using Cyberfuck.GameObjects;
 using Cyberfuck.GameWorld;
 using Microsoft.Xna.Framework;
 

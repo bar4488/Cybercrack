@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Cyberfuck.Entities
+namespace Cyberfuck.GameObjects
 {
     public enum EntityType
     {

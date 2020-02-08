@@ -23,6 +23,7 @@ namespace Cyberfuck.Network
 
         public NetClient(string ip, int port): base(new World())
         {
+            world.NetType = NetType.Client;
             TcpClient serverTcp = new TcpClient(ip, port);
             server = new Connection(world, serverTcp);
             ThreadPool.QueueUserWorkItem(new WaitCallback(Initialize), 0);

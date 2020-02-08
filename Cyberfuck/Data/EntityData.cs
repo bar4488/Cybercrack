@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
-using Cyberfuck.Entities;
+using Cyberfuck.GameObjects;
 using Cyberfuck.Network;
+using Cyberfuck.Damage;
 
 namespace Cyberfuck.Data
 {

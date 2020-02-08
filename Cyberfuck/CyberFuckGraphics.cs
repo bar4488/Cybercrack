@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace Cyberfuck
 {
@@ -11,6 +12,7 @@ namespace Cyberfuck
     {
 		public static GraphicsDeviceManager graphics;
 		public static SpriteBatch spriteBatch;
+		static ContentManager content;
 
         public void InitializeGraphics()
         {
@@ -20,16 +22,18 @@ namespace Cyberfuck
 			graphics.PreferMultiSampling = true;
 			Window.AllowUserResizing = true;
 			IsMouseVisible = true;
-			textures = new Dictionary<string, Texture2D>();
+			Textures = new Dictionary<string, Texture2D>();
         }
 
 		protected override void LoadContent()
 		{
+			content = Content;
 			spriteBatch = new SpriteBatch(GraphicsDevice);
-            textures.Add("player", Content.Load<Texture2D>("Gore_1005"));
-			textures.Add("tileDirt", Content.Load<Texture2D>(@"Dirt"));
-			textures.Add("background", Content.Load<Texture2D>(@"game_background"));
-			textures.Add("shot", Content.Load<Texture2D>(@"shot"));
+            GetTexture("player");
+			GetTexture("tileDirt");
+			GetTexture("background");
+			GetTexture("shot");
+			GetTexture("rect");
 			font = Content.Load<SpriteFont>("Font");
 			base.LoadContent();
 		}
@@ -59,5 +63,11 @@ namespace Cyberfuck
 			base.EndDraw();
 		}
 
+		public static Texture2D GetTexture(string texture)
+		{
+			if (!Textures.ContainsKey(texture))
+                Textures.Add(texture, content.Load<Texture2D>(texture));
+            return Textures[texture];
+		}
     }
 }

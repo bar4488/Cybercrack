@@ -24,5 +24,9 @@ namespace Cyberfuck.Network
         /// </summary>
         CloseConnection,
 
+        AddTile,
+        InventoryUpdate,
+        UseItem
+
     }
 }

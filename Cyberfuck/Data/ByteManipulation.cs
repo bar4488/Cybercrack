@@ -29,15 +29,47 @@ namespace Cyberfuck.Data
             }
             return finalBytes;
         }
-
         public static int[] ConvertBytesToInts(byte[] arr)
         {
-            int[] result = new int[arr.Length / sizeof(int)];
+            int count = arr.Length / sizeof(int);
+            return ConvertBytesToInts(arr, 0, count);
+        }
+        public static int[] ConvertBytesToInts(byte[] arr, int offset, int count)
+        {
+            int[] result = new int[count];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = BitConverter.ToInt32(arr, i * sizeof(int));
+                result[i] = BitConverter.ToInt32(arr, offset + i * sizeof(int));
             }
             return result;
+        }
+        public static float[] ConvertBytesToFloats(byte[] arr)
+        {
+            int count = arr.Length / sizeof(float);
+            return ConvertBytesToFloats(arr, 0, count);
+        }
+
+        public static float[] ConvertBytesToFloats(byte[] arr, int offset, int count)
+        {
+            float[] result = new float[count];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = BitConverter.ToSingle(arr, offset + i * sizeof(float));
+            }
+            return result;
+        }
+
+        public static byte[] ConvertIntsToBytes(params int[] arr)
+        {
+            byte[] data = new byte[arr.Length * sizeof(int)];
+            Buffer.BlockCopy(arr, 0, data, 0, data.Length);
+            return data;
+        }
+        public static byte[] ConvertFloatsToBytes(params float[] arr)
+        {
+            byte[] data = new byte[arr.Length * sizeof(float)];
+            Buffer.BlockCopy(arr, 0, data, 0, data.Length);
+            return data;
         }
     }
 }

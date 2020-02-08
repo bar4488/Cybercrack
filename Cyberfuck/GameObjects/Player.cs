@@ -11,14 +11,14 @@ using Cyberfuck.Network;
 using Cyberfuck.Data;
 using Cyberfuck.Damage;
 using Cyberfuck.GameWorld;
+using Cyberfuck.GameObjects.Items;
 
-namespace Cyberfuck.Entities
+namespace Cyberfuck.GameObjects
 {
     public class Player : IFocusable, IEntity
     {
         World world;
         Point velocity;
-        List<Shot> shots = new List<Shot>();
         Humper.IBox box;
         const int JUMP_VELOCITY = 24;
         const int MAX_SPEED = 8;
@@ -32,12 +32,16 @@ namespace Cyberfuck.Entities
         int fallStart = 0;
         int health = 100;
         bool dead = false;
-
+        private int selectedItem;
+        IItem[] inventory = new IItem[10];
 
         PlayerData oldPlayer;
 
+        GameTime lastGameTime;
+
         public int ID => id;
-        public Texture2D Texture { get => CyberFuck.textures["player"]; }
+        public bool NPC => false;
+        public Texture2D Texture { get => CyberFuck.GetTexture("player"); }
         public EntityType Type { get => EntityType.Player; }
         public Point Position { get => new Point((int)box.X, (int)box.Y); }
         public Vector2 VPosition { get => new Vector2((int)box.X, (int)box.Y); }
@@ -50,6 +54,10 @@ namespace Cyberfuck.Entities
         public int Height => Texture.Height;
         public int Health => health;
 
+        public int SelectedItem { get => selectedItem; set => selectedItem = value; }
+        public bool DirectionRight { get => directionRight; set => directionRight = value; }
+        public IItem[] Inventory { get => inventory; set => inventory = value; }
+
         public Player(World world, int id)
         {
             this.world = world;
@@ -57,6 +65,8 @@ namespace Cyberfuck.Entities
             Velocity = Point.Zero;
             box = world.CollisionWorld.Create(world.CollisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
+            inventory[0] = new Gun(world, this);
+            inventory[1] = new Placorator(world, this);
         }
 
         public Player(World world, PlayerData playerData)
@@ -66,17 +76,19 @@ namespace Cyberfuck.Entities
             this.Velocity = playerData.Entity.Velocity;
             this.box = world.CollisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
+            inventory[0] = new Gun(world, this);
+            inventory[1] = new Placorator(world, this);
         }
-        public void Draw(GameTime gameTime)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            Vector2 screenSize = new Vector2(CyberFuck.graphics.GraphicsDevice.Viewport.Width, CyberFuck.graphics.GraphicsDevice.Viewport.Height);
+            Vector2 screenSize = new Vector2(spriteBatch.GraphicsDevice.Viewport.Width, spriteBatch.GraphicsDevice.Viewport.Height);
 
-            for (int i = 0; i < shots.Count; i++)
-            {
-                CyberFuck.spriteBatch.Draw(shots[i].Texture, new Vector2(shots[i].Damage.PPosition.X, shots[i].Damage.PPosition.Y), shots[i].Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
-            }
             if(!dead)
-                CyberFuck.spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+            {
+                spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+                if(Inventory[SelectedItem] != null)
+                    spriteBatch.Draw(Inventory[SelectedItem].Texture, new Vector2(Inventory[SelectedItem].Texture.Bounds.X - (directionRight ? 0 : Inventory[SelectedItem].Texture.Width), Inventory[SelectedItem].Texture.Bounds.Y) + new Vector2(Bounds.Center.X, Bounds.Center.Y), Inventory[SelectedItem].Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+            }
             else
             {
                 if(world.MyPlayerId == ID)
@@ -86,14 +98,12 @@ namespace Cyberfuck.Entities
 
         public void Update(GameTime gameTime)
         {
-            foreach (var shot in shots)
-            {
-                shot.Update(gameTime);
-            }
+            lastGameTime = gameTime;
             if (dead)
                 return;
-            //save the player data in order to compare changes after update
             oldPlayer = new PlayerData(this);
+            InventoryData oldInventory = new InventoryData(this);
+            //save the player data in order to compare changes after update
             int velX = Velocity.X;
             int velY = Velocity.Y;
             //move the player to the next position
@@ -168,6 +178,7 @@ namespace Cyberfuck.Entities
             // input keys
             if(ID == world.MyPlayerId)
             {
+                CheckSelectedItem();
                 if (Input.IsKeyDown(Keys.Right) || Input.IsKeyDown(Keys.D))
                 {
                     velX = MAX_SPEED;
@@ -200,16 +211,27 @@ namespace Cyberfuck.Entities
                 }
                 if (Input.LeftMouseWentDown)
                 {
-                    //shoot
-
                     Vector2 mousePositionV = Vector2.Transform(new Vector2(Input.MousePosition.X, Input.MousePosition.Y), Matrix.Invert(world.Camera.Transform));
-                    Point mousePosition = new Point((int)mousePositionV.X, (int)mousePositionV.Y);
-                    Vector2 mouseDirection = (mousePositionV - VPosition);
+                    Vector2 mouseDirection = (mousePositionV - new Vector2(Position.X, Position.Y));
                     mouseDirection.Normalize();
-                    Console.WriteLine(mouseDirection);
-                    shots.Add(new Shot(world, VPosition, mouseDirection * 15));
+                    if(Inventory[selectedItem] != null)
+                    {
+                        CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 0, mousePositionV));
+                        Inventory[selectedItem].Use(gameTime, mousePositionV);
+                        directionRight = mouseDirection.X > 0;
+                    }
+                }
+                if (Input.RightMouseWentDown)
+                {
+                    Vector2 mousePositionV = Vector2.Transform(new Vector2(Input.MousePosition.X, Input.MousePosition.Y), Matrix.Invert(world.Camera.Transform));
+                    Vector2 mouseDirection = (mousePositionV - new Vector2(Position.X, Position.Y));
+                    mouseDirection.Normalize();
+                    if(Inventory[selectedItem] != null)
+                    {
+                        CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 1, mousePositionV));
+                        Inventory[selectedItem].SecondUse(gameTime, mousePositionV);
+                    }
                     directionRight = mouseDirection.X > 0;
-
                 }
 
                 
@@ -221,12 +243,45 @@ namespace Cyberfuck.Entities
 
             Velocity = new Point(velX, velY);
 
-            if(oldPlayer != this && (world.NetType == NetType.Server || (world.NetType == NetType.Client && ID == world.MyPlayerId)))
+            if((world.NetType == NetType.Server || (world.NetType == NetType.Client && ID == world.MyPlayerId)))
             {
-                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
+                if(oldPlayer != this)
+                    CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
+                if(oldInventory != new InventoryData(this))
+                    CyberFuck.netPlay.SendMessage(MessageContentType.InventoryUpdate, ID, new InventoryData(this));
             }
         }
-
+        public void Use(Vector2 mousePosition)
+        {
+            Inventory[SelectedItem].Use(lastGameTime, mousePosition);
+        }
+        public void SecondUse(Vector2 mousePosition)
+        {
+            Inventory[SelectedItem].SecondUse(lastGameTime, mousePosition);
+        }
+        public void CheckSelectedItem()
+        {
+            if (Input.KeyWentDown(Keys.D1))
+                selectedItem = 0;
+            if (Input.KeyWentDown(Keys.D2))
+                selectedItem = 1;
+            if (Input.KeyWentDown(Keys.D3))
+                selectedItem = 2;
+            if (Input.KeyWentDown(Keys.D4))
+                selectedItem = 3;
+            if (Input.KeyWentDown(Keys.D5))
+                selectedItem = 4;
+            if (Input.KeyWentDown(Keys.D6))
+                selectedItem = 5;
+            if (Input.KeyWentDown(Keys.D7))
+                selectedItem = 6;
+            if (Input.KeyWentDown(Keys.D8))
+                selectedItem = 7;
+            if (Input.KeyWentDown(Keys.D9))
+                selectedItem = 8;
+            if (Input.KeyWentDown(Keys.D0))
+                selectedItem = 9;
+        }
         public void Damage(int amount, Damage.DamageReason reason, string other)
         {
             health -= amount;
@@ -270,6 +325,26 @@ namespace Cyberfuck.Entities
             this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
             this.health = toApply.Entity.Health;
             this.velocity = toApply.Entity.Velocity;
+            this.directionRight = toApply.flags.directionRight;
+        }
+
+        public void Apply(InventoryData toApply)
+        {
+            selectedItem = toApply.selectItem;
+            for (int i = 0; i < toApply.inventory.Length; i++)
+            {
+                switch (toApply.inventory[i])
+                {
+                    case 1:
+                        Inventory[i] = new Gun(world, this);
+                        break;
+                    case 2:
+                        Inventory[i] = new Placorator(world, this);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
     }

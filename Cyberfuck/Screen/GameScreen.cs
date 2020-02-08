@@ -39,7 +39,7 @@ namespace Cyberfuck.Screen
         {
             Rectangle mainFrame = new Rectangle(0, 0, CyberFuck.graphics.GraphicsDevice.Viewport.Width, CyberFuck.graphics.GraphicsDevice.Viewport.Height);
             spriteBatch.Begin();
-            spriteBatch.Draw(CyberFuck.textures["background"], mainFrame, Color.White);
+            spriteBatch.Draw(CyberFuck.GetTexture("background"), mainFrame, Color.White);
             spriteBatch.End();
             world.Draw(gameTime, spriteBatch);
             spriteBatch.Begin();

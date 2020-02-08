@@ -9,7 +9,7 @@ using System.Drawing;
 using System.Messaging;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-using Cyberfuck.Entities;
+using Cyberfuck.GameObjects;
 using Cyberfuck.Data;
 using Cyberfuck.GameWorld;
 using Microsoft.Xna.Framework;
@@ -189,12 +189,12 @@ namespace Cyberfuck.Network
             }
             // create a player for the client and 
             // send the client its position 
-            Player clietnPlayer = new Player(world, conn.id);
-            byte[] clientsPlayerBytes = new PlayerData(clietnPlayer).Encode();
+            Player clientPlayer = new Player(world, conn.id);
+            byte[] clientsPlayerBytes = new PlayerData(clientPlayer).Encode();
             stream.Write(BitConverter.GetBytes(clientsPlayerBytes.Length), 0, sizeof(int));
             stream.Write(clientsPlayerBytes, 0, clientsPlayerBytes.Length);
             CyberFuck.Logger.Log("Network", "player with id " + conn.id + " added");
-            world.Players[conn.id] = clietnPlayer;
+            world.LoadPlayer(clientPlayer);
             conn.State = ConnectionState.Connected;
         }
     }

@@ -5,19 +5,21 @@ using System.IO;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Humper;
 
 namespace Cyberfuck.GameWorld
 {
     public enum Tile
     {
+        None,
         Dirt,
         Grass,
-        None,
     }
     public class WorldMap
     {
         public System.Drawing.Bitmap bitmap;
         public Tile[,] tileMap;
+        public IBox[,] collisionMap;
         public Humper.World collisionWorld;
         World world;
 
@@ -25,7 +27,7 @@ namespace Cyberfuck.GameWorld
         public int Height => tileMap.GetLength(1);
         public Point Size { get => new Point(Width, Height); }
 
-        public Tile GetTile(int x, int y)
+        public Tile GetBitmapTile(int x, int y)
         {
             switch ((uint)bitmap.GetPixel(x, y).ToArgb())
             {
@@ -35,23 +37,46 @@ namespace Cyberfuck.GameWorld
             return Tile.None;
         }
 
+        public bool AddTile(int x, int y, Tile tile)
+        {
+            if (x >= tileMap.GetLength(0) || x < 0 || y < 0 || y >= tileMap.GetLength(1))
+                return false;
+            if(tile == Tile.None)
+            {
+                if(collisionMap[x, y] != null)
+                {
+                    collisionWorld.Remove(collisionMap[x, y]);
+                    collisionMap[x, y] = null;
+                }
+            }
+            if (tile == Tile.Dirt && tileMap[x, y] == Tile.None)
+            {
+                var boxes = collisionWorld.Find(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE);
+                foreach (var box in boxes)
+                {
+                    if (box.HasTag(Collider.Player))
+                        if(box.Bounds.Intersects(new Humper.Base.RectangleF(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE)))
+                            return false;
+                }
+                collisionMap[x, y] = collisionWorld.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
+            }
+            tileMap[x, y] = tile;
+            return true;
+        }
+
         public WorldMap(World world, System.Drawing.Bitmap map)
         {
             this.world = world;
             bitmap = map;
             tileMap = new Tile[map.Width, map.Height];
+            collisionMap = new IBox[map.Width, map.Height];
             collisionWorld = new Humper.World(map.Width * Constants.TILE_SIZE, map.Height * Constants.TILE_SIZE);
             
             for(int x = 0; x < Width; x++)
             {
                 for(int y = 0; y <Height; y++)
                 {
-                    tileMap[x, y] = GetTile(x, y);
-                    if (tileMap[x,y] == Tile.Dirt)
-                    {
-                        collisionWorld.Create(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, Constants.TILE_SIZE, Constants.TILE_SIZE).AddTags(Collider.Tile);
-                    }
-
+                    AddTile(x, y, GetBitmapTile(x, y));
                 }
             }
         }
@@ -83,7 +108,7 @@ namespace Cyberfuck.GameWorld
                 for(int y = startTileY; y < endTileY; y++)
                 {
                     if (tileMap[x, y] == Tile.Dirt)
-                        CyberFuck.spriteBatch.Draw(CyberFuck.textures["tileDirt"] , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.textures["tileDirt"].Width, CyberFuck.textures["tileDirt"].Height), Color.White);
+                        CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileDirt") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
                 }
             }
         }
