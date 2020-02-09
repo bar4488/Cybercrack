@@ -83,9 +83,6 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
-    <Compile Include="Damage\DamageField.cs" />
-    <Compile Include="Damage\Shot.cs" />
-    <Compile Include="Damage\Wepon.cs" />
     <Compile Include="Data\AddTileData.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
     <Compile Include="Data\CloseConnectionData.cs" />
@@ -93,15 +90,15 @@
     <Compile Include="Data\RemovePlayerData.cs" />
     <Compile Include="Data\InventoryUpdate.cs" />
     <Compile Include="Data\ServerSnapshot.cs" />
-    <Compile Include="Data\ShotData.cs" />
     <Compile Include="Data\UseItemData.cs" />
-    <Compile Include="Data\WeponData.cs" />
     <Compile Include="GameObjects\IEntity.cs" />
     <Compile Include="GameObjects\EntityType.cs" />
     <Compile Include="GameObjects\IGameObject.cs" />
     <Compile Include="GameObjects\Items\IItem.cs" />
     <Compile Include="GameObjects\Items\Gun.cs" />
     <Compile Include="GameObjects\Items\Placorator.cs" />
+    <Compile Include="GameObjects\Items\TileGun.cs" />
+    <Compile Include="GameObjects\VelocityObject.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Logger\ConsoleLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />

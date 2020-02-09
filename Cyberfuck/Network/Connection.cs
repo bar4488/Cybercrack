@@ -75,6 +75,8 @@ namespace Cyberfuck.Network
                         break;
                     case MessageContentType.UseItem:
                         UseItemData useItemData = UseItemData.Decode(message.Content);
+                        if(world.NetType == NetType.Server)
+                            CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, id, useItemData);
                         var player = world.Players[useItemData.player];
                         switch (useItemData.useType)
                         {

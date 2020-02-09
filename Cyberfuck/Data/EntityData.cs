@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Cyberfuck.GameObjects;
 using Cyberfuck.Network;
-using Cyberfuck.Damage;
 
 namespace Cyberfuck.Data
 {

@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Humper.Responses;
 using Cyberfuck.Network;
 using Cyberfuck.Data;
-using Cyberfuck.Damage;
 using Cyberfuck.GameWorld;
 using Cyberfuck.GameObjects.Items;
 
@@ -57,6 +56,7 @@ namespace Cyberfuck.GameObjects
         public int SelectedItem { get => selectedItem; set => selectedItem = value; }
         public bool DirectionRight { get => directionRight; set => directionRight = value; }
         public IItem[] Inventory { get => inventory; set => inventory = value; }
+        public bool IsDead { get => dead; set => dead = value; }
 
         public Player(World world, int id)
         {
@@ -65,8 +65,10 @@ namespace Cyberfuck.GameObjects
             Velocity = Point.Zero;
             box = world.CollisionWorld.Create(world.CollisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
+            box.Data = id;
             inventory[0] = new Gun(world, this);
             inventory[1] = new Placorator(world, this);
+            inventory[2] = new TileGun(world, this);
         }
 
         public Player(World world, PlayerData playerData)
@@ -76,8 +78,10 @@ namespace Cyberfuck.GameObjects
             this.Velocity = playerData.Entity.Velocity;
             this.box = world.CollisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);
+            box.Data = id;
             inventory[0] = new Gun(world, this);
             inventory[1] = new Placorator(world, this);
+            inventory[2] = new TileGun(world, this);
         }
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
@@ -88,11 +92,6 @@ namespace Cyberfuck.GameObjects
                 spriteBatch.Draw(Texture, new Vector2(Bounds.X, Bounds.Y), Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
                 if(Inventory[SelectedItem] != null)
                     spriteBatch.Draw(Inventory[SelectedItem].Texture, new Vector2(Inventory[SelectedItem].Texture.Bounds.X - (directionRight ? 0 : Inventory[SelectedItem].Texture.Width), Inventory[SelectedItem].Texture.Bounds.Y) + new Vector2(Bounds.Center.X, Bounds.Center.Y), Inventory[SelectedItem].Texture.Bounds, Color.White, 0, Vector2.Zero, new Vector2(1f, 1f), directionRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
-            }
-            else
-            {
-                if(world.MyPlayerId == ID)
-                    CyberFuck.spriteBatch.DrawString(CyberFuck.font, "In my heart you shall forever remain", new Vector2(screenSize.X / 2, 100), Color.Red);
             }
         }
 
@@ -115,7 +114,7 @@ namespace Cyberfuck.GameObjects
                 }
                 if (collision.Other.HasTag(Collider.Player))
                     return CollisionResponses.Ignore;
-                return CollisionResponses.Cross;
+                return CollisionResponses.Ignore;
             });
             //collisions
             IEnumerable<Humper.IHit> TileHits = move.Hits.Where((h) => h.Box.HasTag(Collider.Tile));
@@ -127,12 +126,14 @@ namespace Cyberfuck.GameObjects
                     onGound = true;
                     int deltaY = Position.Y - fallStart;
                     fallStart = Position.Y;
+                    /*
                     if(deltaY > 300)
                     {
                         velY = -4;
                         Damage(30, DamageReason.Fall, "");
                         midLand = true;
                     }
+                    */
                 }
                 else if (midLand)
                 {
@@ -198,7 +199,7 @@ namespace Cyberfuck.GameObjects
                         velY = -JUMP_VELOCITY;
                     }
                 }
-                if (Input.KeyWentDown(Keys.Down))
+                if (Input.KeyWentDown(Keys.Down) || Input.KeyWentDown(Keys.S))
                 {
                     velY += 5;
                 }
@@ -216,7 +217,8 @@ namespace Cyberfuck.GameObjects
                     mouseDirection.Normalize();
                     if(Inventory[selectedItem] != null)
                     {
-                        CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 0, mousePositionV));
+                        if(world.NetType != NetType.Single)
+                            CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 0, mousePositionV));
                         Inventory[selectedItem].Use(gameTime, mousePositionV);
                         directionRight = mouseDirection.X > 0;
                     }
@@ -228,7 +230,8 @@ namespace Cyberfuck.GameObjects
                     mouseDirection.Normalize();
                     if(Inventory[selectedItem] != null)
                     {
-                        CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 1, mousePositionV));
+                        if(world.NetType != NetType.Single)
+                            CyberFuck.netPlay.SendMessage(MessageContentType.UseItem, ID, new UseItemData(ID, 1, mousePositionV));
                         Inventory[selectedItem].SecondUse(gameTime, mousePositionV);
                     }
                     directionRight = mouseDirection.X > 0;
@@ -282,7 +285,7 @@ namespace Cyberfuck.GameObjects
             if (Input.KeyWentDown(Keys.D0))
                 selectedItem = 9;
         }
-        public void Damage(int amount, Damage.DamageReason reason, string other)
+        public void Damage(int amount, DamageReason reason, string other)
         {
             health -= amount;
             // if server, send new health to all players
@@ -314,6 +317,11 @@ namespace Cyberfuck.GameObjects
                     Point.Zero), 
                 ID);
             Apply(d);
+        }
+
+        public void Remove()
+        {
+            world.CollisionWorld.Remove(box);
         }
 
         public void Apply(PlayerData toApply)

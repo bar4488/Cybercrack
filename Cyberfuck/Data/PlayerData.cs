@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Cyberfuck.GameObjects;
 using Cyberfuck.Network;
-using Cyberfuck.Damage;
 using static Cyberfuck.Data.ByteManipulation;
 
 namespace Cyberfuck.Data

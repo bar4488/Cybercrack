@@ -22,6 +22,12 @@ namespace Cyberfuck
         Slope = 1 << 3,
 		Damage = 1<<4,
     }
+	public enum DamageReason
+	{
+		Fall,
+		Enemy,
+		Player
+	}
 	public partial class CyberFuck : Game
 	{
 		public static SpriteFont font;

@@ -25,15 +25,13 @@ namespace Cyberfuck.GameObjects.Items
             Holder = entity;
         }
 
-        public void Use(GameTime gameTime, Vector2 MousePosition)
+        public void Use(GameTime gameTime, Vector2 mousePosition)
         {
-            Vector2 mousePositionV = Vector2.Transform(new Vector2(Input.MousePosition.X, Input.MousePosition.Y), Matrix.Invert(world.Camera.Transform));
-            world.AddTile((int)(mousePositionV.X/16), (int)(mousePositionV.Y/16), Tile.Dirt);
+            world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.Dirt);
         }
-        public void SecondUse(GameTime gameTime, Vector2 MousePosition)
+        public void SecondUse(GameTime gameTime, Vector2 mousePosition)
         {
-            Vector2 mousePositionV = Vector2.Transform(new Vector2(Input.MousePosition.X, Input.MousePosition.Y), Matrix.Invert(world.Camera.Transform));
-            world.AddTile((int)(mousePositionV.X/16), (int)(mousePositionV.Y/16), Tile.None);
+            world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.None);
         }
 
         public void Update(GameTime gameTime)

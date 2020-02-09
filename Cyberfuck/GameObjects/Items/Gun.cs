@@ -12,16 +12,19 @@ namespace Cyberfuck.GameObjects.Items
 {
     class Gun: IItem
     {
-        const int SHOT_SPEED = 15;
+        protected const int SHOT_SPEED = 15;
+        protected const int damageAmount = 15;
 
-        public int ItemID { get => 1; }
+        public virtual int ItemID { get => 1; }
         public int OwnerID { get; set; }
         public bool IsOwned { get; set; }
         public IEntity Holder { get; set; }
-        public Texture2D Texture => CyberFuck.GetTexture("gun");
+        public virtual Texture2D Texture => CyberFuck.GetTexture("gun");
 
-        List<PVDataF> shots = new List<PVDataF>();
-        World world;
+        public virtual Texture2D ShotTexture => CyberFuck.GetTexture("shot");
+
+        protected List<Tuple<double, VelocityObject>> shots = new List<Tuple<double, VelocityObject>>();
+        protected World world;
 
         public Gun(World world, IEntity entity)
         {
@@ -32,9 +35,10 @@ namespace Cyberfuck.GameObjects.Items
 
         public void Use(GameTime gameTime, Vector2 mousePosition)
         {
-            Vector2 mouseDirection = (mousePosition - new Vector2(Holder.Position.X, Holder.Position.Y));
+            Vector2 mouseDirection = mousePosition - new Vector2(Holder.Position.X, Holder.Position.Y);
             mouseDirection.Normalize();
-            shots.Add(new PVDataF(new Vector2(Holder.Position.X, Holder.Position.Y), Vector2.Normalize(mouseDirection) * SHOT_SPEED));
+            Humper.IBox box = world.CollisionWorld.Create(Holder.Position.X, Holder.Position.Y, ShotTexture.Width, ShotTexture.Height);
+            shots.Add(new Tuple<double, VelocityObject>(gameTime.TotalGameTime.TotalMilliseconds, new VelocityObject(box, Vector2.Normalize(mouseDirection) * SHOT_SPEED)));
         }
 
         public void SecondUse(GameTime gameTime, Vector2 MousePosition)
@@ -44,19 +48,54 @@ namespace Cyberfuck.GameObjects.Items
 
         public void Update(GameTime gameTime)
         {
-            for (int i = 0; i < shots.Count; i++)
+            foreach (var shotK in shots.ToArray())
             {
-                PVDataF shot = shots[i];
-                shot.Position = shot.Position + shot.Velocity;
-                shots[i] = shot;
+                VelocityObject shot = shotK.Item2;
+                if (MoveShot(shot))
+                {
+                    world.CollisionWorld.Remove(shot.Box);
+                    shots.Remove(shotK);
+                }
             }
+            while (shots.Count > 0)
+            {
+                if (gameTime.TotalGameTime.TotalMilliseconds - shots[0].Item1 > 5000)
+                {
+                    world.CollisionWorld.Remove(shots[0].Item2.Box);
+                    shots.RemoveAt(0);
+                }
+                else
+                    break;
+            }
+        }
+
+        // returns if shot should be removed
+        public virtual bool MoveShot(VelocityObject shot)
+        {
+            bool shouldRemove = false;
+            shot.Box.Move(shot.Position.X + shot.Velocity.X, shot.Position.Y + shot.Velocity.Y, (col) => {
+                if (col.Other.HasTags(Collider.Tile))
+                {
+                    shouldRemove = true;
+                }
+                if (col.Other.HasTags(Collider.Player))
+                {
+                    if(Holder.ID != (int)col.Other.Data)
+                    {
+                        world.Players[(int)col.Other.Data].Damage(damageAmount, DamageReason.Enemy, "a gun shot you");
+                        shouldRemove = true;
+                    }
+                }
+                return new Humper.Responses.IgnoreResponse(col);
+            });
+            return shouldRemove;
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             foreach (var shot in shots)
             {
-                spriteBatch.Draw(CyberFuck.GetTexture("shot"), shot.Position, Color.White);
+                spriteBatch.Draw(ShotTexture, shot.Item2.Position, Color.White);
             }
         }
     }

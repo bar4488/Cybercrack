@@ -63,13 +63,9 @@ namespace Cyberfuck.GameWorld
                 Camera.Focus = Players[MyPlayerId];
             }
         }
-        public void AddTile(int x, int y, Tile tile)
+        public bool AddTile(int x, int y, Tile tile)
         {
-            if(NetType != NetType.Single)
-            {
-                CyberFuck.netPlay.SendMessage(MessageContentType.AddTile, -1, new AddTileData(x, y, tile));
-            }
-            Map.AddTile(x, y, tile);
+            return Map.AddTile(x, y, tile);
         }
         // TODO: ADD IMPLEMENTATION!
         public void LoadEntities(List<EntityData> entities)
@@ -114,6 +110,7 @@ namespace Cyberfuck.GameWorld
             Player player = Players[id];
             lock (GameObjects)
             {
+                Player.Remove();
                 GameObjects.Remove(player);
             }
             lock (Players)
@@ -127,7 +124,7 @@ namespace Cyberfuck.GameWorld
                 CyberFuck.netPlay.SnapShot();
             lock (GameObjects)
             {
-                foreach (var gameObj in GameObjects)
+                foreach (var gameObj in GameObjects.ToArray())
                 {
                     gameObj.Update(gameTime);
                 }
@@ -170,6 +167,10 @@ namespace Cyberfuck.GameWorld
                 {
                     spriteBatch.Draw(Player.Inventory[i].Texture, new Rectangle(210 + 8 + i * 48, 2, 28, 28), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
                 }
+            }
+            if (Player.IsDead)
+            {
+                CyberFuck.spriteBatch.DrawString(CyberFuck.font, "In my heart you shall forever remain", new Vector2(spriteBatch.GraphicsDevice.Viewport.Width / 2, 100), Color.Red);
             }
             spriteBatch.End();
         }
