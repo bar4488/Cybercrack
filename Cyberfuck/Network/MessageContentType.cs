@@ -26,7 +26,8 @@ namespace Cyberfuck.Network
 
         AddTile,
         InventoryUpdate,
-        UseItem
-
+        UseItem,
+        RespawnPlayer,
+        PlayerEvent,
     }
 }

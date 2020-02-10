@@ -35,9 +35,13 @@ namespace Cyberfuck.GameWorld
 
         public void LoadWorld(string level = "Level3.png")
         {
+            this.Map = new WorldMap(this, level);
+            LoadWorld();
+        }
+        public void LoadWorld()
+        {
             this.Players.Clear();
             this.Entities.Clear();
-            this.Map = new WorldMap(this, level);
             this.CollisionWorld = Map.collisionWorld;
             if(NetType == NetType.Single || NetType == NetType.Server)
             {
@@ -48,11 +52,16 @@ namespace Cyberfuck.GameWorld
                 this.Camera.Focus = Players[MyPlayerId];
             }
         }
+        public void LoadWorld(Tile[,] map)
+        {
+            Map = new WorldMap(this, map);
+            LoadWorld();
+        }
         public void LoadWorld(System.Drawing.Bitmap level)
         {
+            Map = new WorldMap(this, level);
             Players.Clear();
             Entities.Clear();
-            Map = new WorldMap(this, level);
             CollisionWorld = Map.collisionWorld;
             if(NetType == NetType.Single || NetType == NetType.Server)
             {
@@ -94,14 +103,14 @@ namespace Cyberfuck.GameWorld
                     GameObjects.Remove(Players[player.ID]);
                 }
                 GameObjects.Add(player);
-            }
-            lock (Players)
-            {
-                Players[player.ID] = player;
-                if (player.ID == MyPlayerId)
+                lock (Players)
                 {
-                    Camera = new Camera2D();
-                    Camera.Focus = Players[MyPlayerId];
+                    Players[player.ID] = player;
+                    if (player.ID == MyPlayerId)
+                    {
+                        Camera = new Camera2D();
+                        Camera.Focus = Players[MyPlayerId];
+                    }
                 }
             }
         }
@@ -112,15 +121,15 @@ namespace Cyberfuck.GameWorld
             {
                 Player.Remove();
                 GameObjects.Remove(player);
-            }
-            lock (Players)
-            {
-                Players.Remove(id);
+                lock (Players)
+                {
+                    Players.Remove(id);
+                }
             }
         }
         public void Update(GameTime gameTime)
         {
-            if(NetType != NetType.Single)
+            if(NetType != NetType.Single && !(NetType == NetType.Client && Player.IsDead))
                 CyberFuck.netPlay.SnapShot();
             lock (GameObjects)
             {
@@ -129,8 +138,9 @@ namespace Cyberfuck.GameWorld
                     gameObj.Update(gameTime);
                 }
             }
-            Camera.Update(gameTime);
-            if(NetType != NetType.Single)
+            if(!Player.IsDead)
+                Camera.Update(gameTime);
+            if(NetType != NetType.Single && !(NetType == NetType.Client && Player.IsDead))
                 CyberFuck.netPlay.Update(gameTime);
         }
 

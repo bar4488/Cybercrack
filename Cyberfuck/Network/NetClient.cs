@@ -31,7 +31,7 @@ namespace Cyberfuck.Network
 
         public void Initialize(object data)
         {
-            Bitmap worldMap;
+            Tile[,] worldMap;
             CyberFuck.Logger.Log("Network", "initializing connection with server");
             NetworkStream stream = server.stream;
             BinaryFormatter f = new BinaryFormatter();
@@ -43,7 +43,7 @@ namespace Cyberfuck.Network
             using (MemoryStream memmoryStream = new MemoryStream(imageBytes))
             {
                 memmoryStream.Position = 0;
-                worldMap = (Bitmap)f.Deserialize(memmoryStream);
+                worldMap = (Tile[,])f.Deserialize(memmoryStream);
             }
             world.LoadWorld(worldMap);
 

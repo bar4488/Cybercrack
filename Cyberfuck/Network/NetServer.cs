@@ -78,10 +78,12 @@ namespace Cyberfuck.Network
             ServerSnapshot snapshot = ServerSnapshot.Snapshot(world);
             foreach (var playerKV in snapshot.playersData)
             {
-                if(previousSnapshot.playersData[playerKV.Key] != playerKV.Value)
+                PlayerData d;
+                if(previousSnapshot.playersData.TryGetValue(playerKV.Key, out d))
                 {
-                    // the player data changed, notify all the clients
-                    SendMessage(MessageContentType.PlayerUpdate, playerKV.Key, playerKV.Value);
+                    // check if the player data changed. if yes, notify all the clients
+                    if(d != playerKV.Value)
+                        SendMessage(MessageContentType.PlayerUpdate, playerKV.Key, playerKV.Value);
                 }
             }
             for (int i = 0; i < snapshot.entitiesData.Count; i++)
@@ -141,11 +143,11 @@ namespace Cyberfuck.Network
             Connection conn = (Connection)data;
             NetworkStream stream = conn.stream;
             //send the world bitmap to the client:
-            Bitmap worldBitmap = world.Map.bitmap;
+            Tile[,] worldMap = world.Map.tileMap;
             BinaryFormatter formatter = new BinaryFormatter();
             using (MemoryStream memmory = new MemoryStream())
             {
-                formatter.Serialize(memmory, worldBitmap);
+                formatter.Serialize(memmory, worldMap);
                 long size = memmory.Length;
                 Console.WriteLine(size);
                 byte[] bsize = BitConverter.GetBytes(size);

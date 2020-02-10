@@ -69,6 +69,7 @@ namespace Cyberfuck.GameObjects
             inventory[0] = new Gun(world, this);
             inventory[1] = new Placorator(world, this);
             inventory[2] = new TileGun(world, this);
+            inventory[3] = new DetonatorGun(world, this);
         }
 
         public Player(World world, PlayerData playerData)
@@ -296,24 +297,37 @@ namespace Cyberfuck.GameObjects
         }
         public void Kill()
         {
+            if (world.NetType == NetType.Server)
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, ID, new PlayerEventData(ID, EventType.Kill));
             dead = true;
             // if server send that the player has died
+            world.CollisionWorld.Remove(box);
+            box = null;
             Thread t = new Thread(() =>
             {
-                Thread.Sleep(1000);
-                Respawn();
+                if(world.NetType != NetType.Client)
+                {
+                    Thread.Sleep(1000);
+                    lock (world.GameObjects)
+                    {
+                        Point respawnPosition = new Point((int)world.CollisionWorld.Bounds.Width / 2, 0);
+                        Respawn(respawnPosition);
+                    }
+                }
             });
             t.Start();
         }
 
-        public void Respawn()
+        public void Respawn(Point position)
         {
+            if(world.NetType == NetType.Server)
+                CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, ID, new RespawnPlayerData(position.X, position.Y, ID));
             dead = false;
             var d = new PlayerData(
                 new EntityData(
                     EntityType.Player, 
                     100, 
-                    new Point((int)world.CollisionWorld.Bounds.Width / 2, 0), 
+                    position, 
                     Point.Zero), 
                 ID);
             Apply(d);
@@ -328,9 +342,18 @@ namespace Cyberfuck.GameObjects
         {
             if (this.ID != toApply.ID)
                 throw new Exception("id doesnt match");
-            if(world.NetType == NetType.Server)
+            if (world.NetType == NetType.Server)
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, this.ID, toApply);
-            this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
+            if (world.NetType == NetType.Client)
+                dead = false;
+            if (box == null)
+            {
+                box = world.CollisionWorld.Create(toApply.Entity.Position.X, toApply.Entity.Position.Y, Texture.Width, Texture.Height);
+                box.AddTags(Collider.Player);
+                box.Data = id;
+            }
+            else
+                this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
             this.health = toApply.Entity.Health;
             this.velocity = toApply.Entity.Velocity;
             this.directionRight = toApply.flags.directionRight;

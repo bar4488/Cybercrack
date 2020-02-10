@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using Cyberfuck.Data;
 using Cyberfuck.GameWorld;
+using Cyberfuck.GameObjects;
 
 namespace Cyberfuck.Network
 {
@@ -93,13 +94,36 @@ namespace Cyberfuck.Network
                     case MessageContentType.EntityData:
                         break;
                     case MessageContentType.RemovePlayer:
-                        RemovePlayerData data = RemovePlayerData.Decode(message.Content);
-                        world.RemovePlayer(data.playerId);
+                        RemovePlayerData removePlayerData = RemovePlayerData.Decode(message.Content);
+                        world.RemovePlayer(removePlayerData.playerId);
+                        break;
+                    case MessageContentType.RespawnPlayer:
+                        RespawnPlayerData respawnData = RespawnPlayerData.Decode(message.Content);
+                        world.Players[respawnData.player].Respawn(respawnData.position);
+                        break;
+                    case MessageContentType.PlayerEvent:
+                        PlayerEventData eventData = PlayerEventData.Decode(message.Content);
+                        HandlePlayerEvent(eventData.player, (EventType)eventData.type);
                         break;
                     default:
                         throw new NotImplementedException();
                 }
             }
+        }
+
+        public void HandlePlayerEvent(int id, EventType eventType)
+        {
+            Player player = world.Players[id];
+            switch (eventType)
+            {
+                case EventType.Kill:
+                    if(!player.IsDead)
+                        player.Kill();
+                    break;
+                default:
+                    break;
+            }
+
         }
         
         public void Reset(TcpClient conn)

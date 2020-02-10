@@ -19,7 +19,7 @@ namespace Cyberfuck.Data
             this.y = y;
             this.tile = (int)tile;
         }
-        public MessageContentType ContentType => MessageContentType.RemovePlayer;
+        public MessageContentType ContentType => MessageContentType.AddTile;
 
         public byte[] Encode()
         {

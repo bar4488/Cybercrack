@@ -15,6 +15,7 @@ namespace Cyberfuck.GameObjects
         Point Velocity { get; }
         Vector2 TilePosition { get; }
         Vector2 TileVelocity { get; }
+        bool IsDead { get; }
         int Health { get; }
         int Width { get; }
         int Height { get; }

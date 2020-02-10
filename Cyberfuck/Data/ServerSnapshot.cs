@@ -21,7 +21,8 @@ namespace Cyberfuck.Data
             List<EntityData> entitiesData = new List<EntityData>();
             foreach (var playerKV in world.Players)
             {
-                playersData.Add(playerKV.Key, new PlayerData(playerKV.Value));
+                if(!playerKV.Value.IsDead)
+                    playersData.Add(playerKV.Key, new PlayerData(playerKV.Value));
             }
             foreach (var entity in world.Entities)
             {

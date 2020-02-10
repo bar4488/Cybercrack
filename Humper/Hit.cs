@@ -400,13 +400,6 @@
 			var otherDistance = (origin - than.Box.Bounds.Center).LengthSquared();
 			
 			return thisDistance < otherDistance;
-
-			var thissDistance = (origin - this.Position).LengthSquared();
-			var otherrDistance = (origin - than.Position).LengthSquared();
-
-			return thisDistance < otherDistance;
-
-			return this.distance.LengthSquared() < ((Hit)than).distance.LengthSquared();
 		}
 	}
 }

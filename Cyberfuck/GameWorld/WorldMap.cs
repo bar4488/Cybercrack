@@ -64,6 +64,20 @@ namespace Cyberfuck.GameWorld
             return true;
         }
 
+        public WorldMap(World world, Tile[,] map)
+        {
+            this.world = world;
+            tileMap = new Tile[map.GetLength(0), map.GetLength(1)];
+            collisionMap = new IBox[map.GetLength(0), map.GetLength(1)];
+            collisionWorld = new Humper.World(map.GetLength(0) * Constants.TILE_SIZE, map.GetLength(1) * Constants.TILE_SIZE);
+            for(int x = 0; x < map.GetLength(0); x++)
+            {
+                for(int y = 0; y <map.GetLength(1); y++)
+                {
+                    AddTile(x, y, map[x, y]);
+                }
+            }
+        }
         public WorldMap(World world, System.Drawing.Bitmap map)
         {
             this.world = world;

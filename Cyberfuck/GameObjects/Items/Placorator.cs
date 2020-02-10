@@ -27,11 +27,17 @@ namespace Cyberfuck.GameObjects.Items
 
         public void Use(GameTime gameTime, Vector2 mousePosition)
         {
-            world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.Dirt);
+            if(world.NetType != Network.NetType.Client)
+            {
+                Vector2 mouseDirection = mousePosition - new Vector2(Holder.Position.X, Holder.Position.Y);
+                if(mouseDirection.Length() < 5*16)
+                    world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.Dirt);
+            }
         }
         public void SecondUse(GameTime gameTime, Vector2 mousePosition)
         {
-            world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.None);
+            if(world.NetType != Network.NetType.Client)
+                world.AddTile((int)(mousePosition.X/16), (int)(mousePosition.Y/16), Tile.None);
         }
 
         public void Update(GameTime gameTime)
@@ -40,7 +46,6 @@ namespace Cyberfuck.GameObjects.Items
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            spriteBatch.Draw(CyberFuck.GetTexture("placorator"), new Rectangle(Holder.Position.X, Holder.Position.Y, Texture.Width, Texture.Height), Color.Transparent);
         }
     }
 }
