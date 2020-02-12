@@ -23,7 +23,7 @@ namespace Cyberfuck.Network
     public interface INetBase
     {
         event OnCloseEvent OnClose;
-        void SendMessage(MessageContentType messageType, int player, IMessageContent data);
+        void SendMessage(MessageContentType messageType, int excludedPlayer, IMessageContent data);
         void Update(GameTime gameTime);
         void Close(CloseReason reason);
         void SnapShot();

@@ -140,7 +140,7 @@ namespace Cyberfuck.GameWorld
             }
             if(!Player.IsDead)
                 Camera.Update(gameTime);
-            if(NetType != NetType.Single && !(NetType == NetType.Client && Player.IsDead))
+            if(NetType != NetType.Single)
                 CyberFuck.netPlay.Update(gameTime);
         }
 

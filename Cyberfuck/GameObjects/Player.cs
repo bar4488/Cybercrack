@@ -298,7 +298,7 @@ namespace Cyberfuck.GameObjects
         public void Kill()
         {
             if (world.NetType == NetType.Server)
-                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, ID, new PlayerEventData(ID, EventType.Kill));
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, -1, new PlayerEventData(ID, EventType.Kill));
             dead = true;
             // if server send that the player has died
             world.CollisionWorld.Remove(box);
@@ -321,8 +321,16 @@ namespace Cyberfuck.GameObjects
         public void Respawn(Point position)
         {
             if(world.NetType == NetType.Server)
-                CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, ID, new RespawnPlayerData(position.X, position.Y, ID));
+                CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, -1, new RespawnPlayerData(position.X, position.Y, ID));
             dead = false;
+            if (box != null)
+            {
+                world.CollisionWorld.Remove(box);
+                box = null;
+            }
+            box = world.CollisionWorld.Create(position.X, position.Y, Texture.Width, Texture.Height);
+            box.AddTags(Collider.Player);
+            box.Data = id;
             var d = new PlayerData(
                 new EntityData(
                     EntityType.Player, 
@@ -343,17 +351,12 @@ namespace Cyberfuck.GameObjects
             if (this.ID != toApply.ID)
                 throw new Exception("id doesnt match");
             if (world.NetType == NetType.Server)
-                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, this.ID, toApply);
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, toApply);
             if (world.NetType == NetType.Client)
                 dead = false;
-            if (box == null)
-            {
-                box = world.CollisionWorld.Create(toApply.Entity.Position.X, toApply.Entity.Position.Y, Texture.Width, Texture.Height);
-                box.AddTags(Collider.Player);
-                box.Data = id;
-            }
-            else
-                this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
+            else if (dead == true)
+                return;
+            this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
             this.health = toApply.Entity.Health;
             this.velocity = toApply.Entity.Velocity;
             this.directionRight = toApply.flags.directionRight;

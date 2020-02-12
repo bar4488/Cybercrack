@@ -121,12 +121,14 @@ namespace Cyberfuck.Network
         }
         public override void Update(GameTime gameTime)
         {
-            ClientSnapshot snapshot = ClientSnapshot.SnapShot(world);
-            if(previousSnapshot.playerData != snapshot.playerData)
+            if(!world.Player.IsDead)
             {
-                SendMessage(MessageContentType.PlayerUpdate, snapshot.playerData.ID, snapshot.playerData);
+                ClientSnapshot snapshot = ClientSnapshot.SnapShot(world);
+                if(previousSnapshot.playerData != snapshot.playerData)
+                {
+                    SendMessage(MessageContentType.PlayerUpdate, snapshot.playerData.ID, snapshot.playerData);
+                }
             }
-
             // read new data from server
             server.Update();
         }
