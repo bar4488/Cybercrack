@@ -12,6 +12,7 @@ namespace Cyberfuck.Network
     {
         public event OnCloseEvent OnClose;
         protected World world;
+        object messageLock = new Object();
 
         public NetBase(World world)
         {
@@ -19,15 +20,18 @@ namespace Cyberfuck.Network
         }
         public void SendMessage(MessageContentType type, int player, IMessageContent data)
         {
-            NetworkMessage msg;
-            if(data != null)
+            lock (messageLock)
             {
-                msg = new NetworkMessage(data, type);
-                SendBuffer(msg.Encode(), player);
-            }
-            else
-            {
-                SendBuffer(NetworkMessage.EmptyMessage(type), player);
+                NetworkMessage msg;
+                if(data != null)
+                {
+                    msg = new NetworkMessage(data, type);
+                    SendBuffer(msg.Encode(), player);
+                }
+                else
+                {
+                    SendBuffer(NetworkMessage.EmptyMessage(type), player);
+                }
             }
         }
 

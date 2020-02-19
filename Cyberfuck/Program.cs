@@ -31,14 +31,22 @@ namespace Cyberfuck
 			//           <string>True</string>
 			Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
 
-			using(CyberFuck game = new CyberFuck())
-			{
-				bool isHighDPI = Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1";
-				if(isHighDPI)
-					Debug.WriteLine("HiDPI Enabled");
+            try
+            {
+                using(CyberFuck game = new CyberFuck())
+                {
+                    bool isHighDPI = Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1";
+                    if(isHighDPI)
+                        Debug.WriteLine("HiDPI Enabled");
 
-				game.Run();
-			}
+                    game.Run();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                while(true){ }
+            }
 		}
 	}
 }

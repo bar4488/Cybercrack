@@ -21,6 +21,7 @@ namespace Cyberfuck
 		// a tile which the user can step on
         Slope = 1 << 3,
 		Damage = 1<<4,
+		Item = 1<<5,
     }
 	public enum DamageReason
 	{

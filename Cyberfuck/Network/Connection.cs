@@ -105,6 +105,10 @@ namespace Cyberfuck.Network
                         PlayerEventData eventData = PlayerEventData.Decode(message.Content);
                         HandlePlayerEvent(eventData.player, (EventType)eventData.type);
                         break;
+                    case MessageContentType.DropItem:
+                        DropItemData dropItemData = DropItemData.Decode(message.Content);
+                        world.Players[dropItemData.playerID].DropItem(dropItemData.itemSlot);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }

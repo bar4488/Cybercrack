@@ -23,11 +23,11 @@ namespace Cyberfuck.Network
         /// notify when the server or the client are closing their connection
         /// </summary>
         CloseConnection,
-
         AddTile,
         InventoryUpdate,
         UseItem,
         RespawnPlayer,
         PlayerEvent,
+        DropItem,
     }
 }

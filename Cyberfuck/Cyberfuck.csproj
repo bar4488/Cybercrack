@@ -7,7 +7,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F49E95DA-50E3-4E4A-A820-03AF20149CB3}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cyberfuck</RootNamespace>
     <AssemblyName>Cyberfuck</AssemblyName>
@@ -83,6 +83,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CyberFuckGraphics.cs" />
+    <Compile Include="Data\DropItemData.cs" />
     <Compile Include="Data\AddTileData.cs" />
     <Compile Include="Data\ClientSnapshot.cs" />
     <Compile Include="Data\CloseConnectionData.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="GameObjects\IEntity.cs" />
     <Compile Include="GameObjects\EntityType.cs" />
     <Compile Include="GameObjects\IGameObject.cs" />
+    <Compile Include="GameObjects\Items\DroppedItem.cs" />
     <Compile Include="GameObjects\Items\IItem.cs" />
     <Compile Include="GameObjects\Items\Gun.cs" />
     <Compile Include="GameObjects\Items\Placorator.cs" />

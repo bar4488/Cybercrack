@@ -109,6 +109,8 @@ namespace Cyberfuck.GameObjects
             //move the player to the next position
             var move = box.Move(Position.X + velX, Position.Y + velY, (collision) =>
             {
+                if (collision.Other.HasTag(Collider.Item))
+                    PickItem((DroppedItem)collision.Other.Data);
                 if (collision.Other.HasTag(Collider.Tile))
                 {
                     return CollisionResponses.Slide;
@@ -237,13 +239,16 @@ namespace Cyberfuck.GameObjects
                     }
                     directionRight = mouseDirection.X > 0;
                 }
-
-                
+                if (Input.KeyWentDown(Keys.Q))
+                {
+                    DropItem(SelectedItem);
+                }
             }
             if (velX > 0)
                 directionRight = true;
             if (velX < 0)
                 directionRight = false;
+
 
             Velocity = new Point(velX, velY);
 
@@ -253,6 +258,22 @@ namespace Cyberfuck.GameObjects
                     CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, new PlayerData(this));
                 if(oldInventory != new InventoryData(this))
                     CyberFuck.netPlay.SendMessage(MessageContentType.InventoryUpdate, ID, new InventoryData(this));
+            }
+        }
+        public void DropItem(int itemSlot)
+        {
+            if(world.NetType != NetType.Single)
+            {
+                if(ID == world.MyPlayerId)
+                {
+                    CyberFuck.netPlay.SendMessage(MessageContentType.DropItem, ID, new DropItemData(ID, itemSlot));
+                }
+            }
+            if(Inventory[SelectedItem] != null)
+            {
+                var item = Inventory[itemSlot];
+                Inventory[SelectedItem] = null;
+                world.GameObjects.Add(new DroppedItem(world, new Vector2(Position.X, Position.Y), item));
             }
         }
         public void Use(Vector2 mousePosition)
@@ -295,8 +316,22 @@ namespace Cyberfuck.GameObjects
             if (health < 0)
                 Kill();
         }
+        public void PickItem(DroppedItem item)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if(Inventory[i] == null)
+                {
+                    Inventory[i] = item.Item;
+                    item.Remove();
+                    break;
+                }
+            }
+        }
         public void Kill()
         {
+            if (dead)
+                return;
             if (world.NetType == NetType.Server)
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, -1, new PlayerEventData(ID, EventType.Kill));
             dead = true;
@@ -320,17 +355,20 @@ namespace Cyberfuck.GameObjects
 
         public void Respawn(Point position)
         {
-            if(world.NetType == NetType.Server)
-                CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, -1, new RespawnPlayerData(position.X, position.Y, ID));
-            dead = false;
-            if (box != null)
+            lock (this)
             {
-                world.CollisionWorld.Remove(box);
-                box = null;
+                if(world.NetType == NetType.Server)
+                    CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, -1, new RespawnPlayerData(position.X, position.Y, ID));
+                if (box != null)
+                {
+                    world.CollisionWorld.Remove(box);
+                    box = null;
+                }
+                box = world.CollisionWorld.Create(position.X, position.Y, Texture.Width, Texture.Height);
+                box.AddTags(Collider.Player);
+                box.Data = id;
+                dead = false;
             }
-            box = world.CollisionWorld.Create(position.X, position.Y, Texture.Width, Texture.Height);
-            box.AddTags(Collider.Player);
-            box.Data = id;
             var d = new PlayerData(
                 new EntityData(
                     EntityType.Player, 
