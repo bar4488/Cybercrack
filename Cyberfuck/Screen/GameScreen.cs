@@ -16,11 +16,6 @@ namespace Cyberfuck.Screen
 
         public World World { get => world; }
 
-        public GameScreen(string level)
-        {
-            world = new World();
-            world.LoadWorld(level);
-        }
         public GameScreen(World world)
         {
             this.world = world;

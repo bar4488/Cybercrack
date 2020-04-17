@@ -56,12 +56,21 @@ namespace Cyberfuck
 
 		public static void Start(string level)
 		{
-			Screen = new GameScreen(level);
+            GameWorld.World w = new GameWorld.World();
+            if (level == "test")
+                w.LoadWorld(new GameWorld.WorldMap(w, 0));
+            else
+                w.LoadWorld(level);
+			Screen = new GameScreen(w);
 			((GameScreen)Screen).World.NetType = NetType.Single;
 		}
 		public static void Join(string ip, int port)
 		{
 			netPlay = new NetClient(ip, port);
+            netPlay.OnClose += (r) =>
+            {
+                Screen = new MainScreen();
+            };
             ((NetClient)netPlay).OnConnected += world =>
             {
                 Screen = new GameScreen(world);
@@ -71,7 +80,14 @@ namespace Cyberfuck
         public static void Host(string level)
 		{
 			if (!(Screen is GameScreen))
-				Screen = new GameScreen(level);
+            {
+                GameWorld.World w = new GameWorld.World();
+                if (level == "test")
+                    w.LoadWorld(new GameWorld.WorldMap(w, 0));
+                else
+                    w.LoadWorld(level);
+				Screen = new GameScreen(w);
+            }
 			((GameScreen)Screen).World.NetType = NetType.Server;
 			netPlay = new NetServer(((GameScreen)Screen).World, 1234);
 		}

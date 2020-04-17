@@ -9,13 +9,7 @@ using Humper;
 
 namespace Cyberfuck.GameWorld
 {
-    public enum Tile
-    {
-        None,
-        Dirt,
-        Grass,
-    }
-    public class WorldMap
+    public class WorldMap2
     {
         public System.Drawing.Bitmap bitmap;
         public Tile[,] tileMap;
@@ -64,7 +58,7 @@ namespace Cyberfuck.GameWorld
             return true;
         }
 
-        public WorldMap(World world, int seed) : this(world, MapFromSeed(seed)) { }
+        public WorldMap2(World world, int seed) : this(world, MapFromSeed(seed)) { }
 
         private static Tile[,] MapFromSeed(int seed)
         {
@@ -80,7 +74,7 @@ namespace Cyberfuck.GameWorld
             }
             return map;
         }
-        public WorldMap(World world, Tile[,] map)
+        public WorldMap2(World world, Tile[,] map)
         {
             this.world = world;
             tileMap = new Tile[map.GetLength(0), map.GetLength(1)];
@@ -94,7 +88,7 @@ namespace Cyberfuck.GameWorld
                 }
             }
         }
-        public WorldMap(World world, System.Drawing.Bitmap map)
+        public WorldMap2(World world, System.Drawing.Bitmap map)
         {
             this.world = world;
             bitmap = map;
@@ -110,7 +104,7 @@ namespace Cyberfuck.GameWorld
                 }
             }
         }
-        public WorldMap(World world, string level = "Level1.png"): this(world, new System.Drawing.Bitmap(@"Content/Levels/" + level))
+        public WorldMap2(World world, string level = "Level1.png"): this(world, new System.Drawing.Bitmap(@"Content/Levels/" + level))
         {
         }
         public void Draw(GameTime gameTime)
@@ -138,12 +132,7 @@ namespace Cyberfuck.GameWorld
                 for(int y = startTileY; y < endTileY; y++)
                 {
                     if (tileMap[x, y] == Tile.Dirt)
-                    {
-                        if (y - 1 == 0 || tileMap[x, y - 1] == Tile.Dirt)
                         CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileDirt") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
-                        else
-                        CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileGrass") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
-                    }
                 }
             }
         }

@@ -57,6 +57,11 @@ namespace Cyberfuck.GameWorld
             Map = new WorldMap(this, map);
             LoadWorld();
         }
+        public void LoadWorld(WorldMap map)
+        {
+            Map = map;
+            LoadWorld();
+        }
         public void LoadWorld(System.Drawing.Bitmap level)
         {
             Map = new WorldMap(this, level);
