@@ -16,9 +16,9 @@ namespace Cyberfuck.Screen
 
         public World World { get => world; }
 
-        public GameScreen(string level)
+        public GameScreen(string level, string name)
         {
-            world = new World();
+            world = new World(name);
             world.LoadWorld(level);
         }
         public GameScreen(World world)

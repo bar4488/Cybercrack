@@ -16,6 +16,7 @@ namespace Cyberfuck.GameObjects
 {
     public class Player : IFocusable, IEntity
     {
+        String name;
         World world;
         Point velocity;
         Humper.IBox box;
@@ -57,10 +58,12 @@ namespace Cyberfuck.GameObjects
         public bool DirectionRight { get => directionRight; set => directionRight = value; }
         public IItem[] Inventory { get => inventory; set => inventory = value; }
         public bool IsDead { get => dead; set => dead = value; }
+        public string Name { get => name; set => name = value; }
 
-        public Player(World world, int id)
+        public Player(World world, int id, string name)
         {
             this.world = world;
+            this.name = name;
             this.id = id;
             Velocity = Point.Zero;
             box = world.CollisionWorld.Create(world.CollisionWorld.Bounds.Width / 2, 0, Texture.Width, Texture.Height);
@@ -72,10 +75,11 @@ namespace Cyberfuck.GameObjects
             inventory[3] = new DetonatorGun(world, this);
         }
 
-        public Player(World world, PlayerData playerData)
+        public Player(World world, PlayerData playerData, string name)
         {
             this.world = world;
             this.id = playerData.ID;
+            this.name = name;
             this.Velocity = playerData.Entity.Velocity;
             this.box = world.CollisionWorld.Create(playerData.Entity.Position.X, playerData.Entity.Position.Y, Texture.Width, Texture.Height);
             box.AddTags(Collider.Player);

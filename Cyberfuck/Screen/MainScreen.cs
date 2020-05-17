@@ -37,18 +37,27 @@ namespace Cyberfuck.Screen
                 switch ((State)(choice % texts.Count))
                 {
                     case State.Host:
-                        CyberFuck.Screen = new ChooseWorldScreen((string world) =>
+                        CyberFuck.Screen = new ChooseWorldScreen((string w) =>
                         {
-                            CyberFuck.Host(world);
+                            CyberFuck.Screen = new EnterNameScreen((n) =>
+                            {
+                                CyberFuck.Host(w, n);
+                            });
                         });
                         break;
                     case State.Join:
-                        CyberFuck.Screen = new JoinScreen();
+                        CyberFuck.Screen = new EnterNameScreen((n) =>
+                        {
+                            CyberFuck.Screen = new JoinScreen(n);
+                        });
                         break;
                     case State.Single:
                         CyberFuck.Screen = new ChooseWorldScreen((w) =>
                         {
-                            CyberFuck.Start(w);
+                        CyberFuck.Screen = new EnterNameScreen((n) =>
+                        {
+                            CyberFuck.Start(w, n);
+                        });
                         });
                         break;
                     case State.Quit:
@@ -58,11 +67,6 @@ namespace Cyberfuck.Screen
                         break;
                 }
             }
-        }
-
-        public void OnChooseWorld(string world)
-        {
-            CyberFuck.Host(world);
         }
     }
 }

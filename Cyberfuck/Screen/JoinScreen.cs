@@ -20,8 +20,10 @@ namespace Cyberfuck.Screen
         string ip = "127.0.0.1";
         string port = "1234";
         bool error = false;
-        public JoinScreen()
+        string name;
+        public JoinScreen(string name)
         {
+            this.name = name;
             ReloadTexts();
         }
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -81,7 +83,7 @@ namespace Cyberfuck.Screen
                         if (int.TryParse(port, out portNum))
                             try
                             {
-                                CyberFuck.Join(ip, portNum);
+                                CyberFuck.Join(ip, portNum, name);
                             }
                             catch (System.Net.Sockets.SocketException)
                             {

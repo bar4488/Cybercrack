@@ -61,9 +61,9 @@ namespace Cyberfuck.Network
                         PlayerData playerData = PlayerData.Decode(message.Content);
                         if(world.Players.ContainsKey(playerData.ID))
                             world.Players[playerData.ID].Apply(playerData);
-                        else
+                        //else
                         {
-                            world.LoadPlayer(playerData, false);
+                            //world.LoadPlayer(playerData, false);
                         }
                         break;
                     case MessageContentType.AddTile:

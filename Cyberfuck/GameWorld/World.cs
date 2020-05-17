@@ -12,6 +12,7 @@ namespace Cyberfuck.GameWorld
 {
     public class World
     {
+        private string myPlayerName;
         public Player Player { get => Players[MyPlayerId]; }
         public NetType NetType { get; set; }
         public WorldMap Map { get; set; }
@@ -22,15 +23,16 @@ namespace Cyberfuck.GameWorld
         public List<IGameObject> GameObjects { get; set; } = new List<IGameObject>();
         public Humper.World CollisionWorld { get; set; }
 
-        public World()
+        public World(string name)
         {
-
+            this.myPlayerName = name;
         }
 
-        public World(int myPlayerId, Dictionary<int, Player> players)
+        public World(int myPlayerId, Dictionary<int, Player> players, string name)
         {
             this.MyPlayerId = myPlayerId;
             this.Players = players;
+            this.myPlayerName = name;
         }
 
         public void LoadWorld(string level = "Level3.png")
@@ -46,7 +48,7 @@ namespace Cyberfuck.GameWorld
             if(NetType == NetType.Single || NetType == NetType.Server)
             {
                 this.MyPlayerId = -1;
-                this.Players[-1] = new Player(this, MyPlayerId);
+                this.Players[-1] = new Player(this, MyPlayerId, myPlayerName);
                 GameObjects.Add(Players[-1]);
                 this.Camera = new Camera2D();
                 this.Camera.Focus = Players[MyPlayerId];
@@ -66,7 +68,7 @@ namespace Cyberfuck.GameWorld
             if(NetType == NetType.Single || NetType == NetType.Server)
             {
                 MyPlayerId = -1;
-                Players[-1] = new Player(this, MyPlayerId);
+                Players[-1] = new Player(this, MyPlayerId, myPlayerName);
                 GameObjects.Add(Players[-1]);
                 Camera = new Camera2D();
                 Camera.Focus = Players[MyPlayerId];
@@ -81,18 +83,11 @@ namespace Cyberfuck.GameWorld
         {
         }
 
-        public void LoadPlayers(List<PlayerData> playersData)
-        {
-            foreach (var playerData in playersData)
-            {
-                LoadPlayer(playerData, false);
-            }
-        }
-        public void LoadPlayer(PlayerData playerData, bool local)
+        public void LoadPlayer(string name, PlayerData playerData, bool local)
         {
             if (local)
                 MyPlayerId = playerData.ID;
-            LoadPlayer(new Player(this, playerData));
+            LoadPlayer(new Player(this, playerData, name));
         }
         public void LoadPlayer(Player player)
         {
@@ -167,15 +162,23 @@ namespace Cyberfuck.GameWorld
             spriteBatch.Begin();
             Color a = Color.White;
             a.A = 100;
-            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(0, 0, 210 + 48 * 10, 36), a);
-            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(2, 18, Players[MyPlayerId].Health * 2, 16), Color.Green);
-            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(2 + Players[MyPlayerId].Health * 2, 18, 200 - Players[MyPlayerId].Health * 2, 16), Color.Red);
+
+            int index = 0;
+            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(0, 0, 250 + 48 * 10, 36), a);
+            spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(0, 0, 255, 36 + 20 * Players.Count-1), a);
+            foreach (var player in Players)
+            {
+                spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+                spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42, 18 + 20*index, player.Value.Health * 2, 16), Color.Green);
+                spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42 + player.Value.Health * 2,  18 + 20*index, 200 - player.Value.Health * 2, 16), Color.Red);
+                index++;
+            }
             for (int i = 0; i < 10; i++)
             {
-                spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(210 + 8 + i * 48, 2, 32, 32), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
+                spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(250 + 8 + i * 48, 2, 32, 32), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
                 if(Player.Inventory[i] != null)
                 {
-                    spriteBatch.Draw(Player.Inventory[i].Texture, new Rectangle(210 + 8 + i * 48, 2, 28, 28), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
+                    spriteBatch.Draw(Player.Inventory[i].Texture, new Rectangle(250 + 8 + i * 48, 2, 28, 28), i == Player.SelectedItem ? Color.Yellow : Color.Blue);
                 }
             }
             if (Player.IsDead)

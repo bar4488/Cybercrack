@@ -109,6 +109,7 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Data\ByteManipulation.cs" />
     <Compile Include="Screen\ChooseWorldScreen.cs" />
+    <Compile Include="Screen\EnterNameScreen.cs" />
     <Compile Include="Screen\JoinScreen.cs" />
     <Compile Include="Logger\ScreenLogger.cs" />
     <Compile Include="Network\Connection.cs" />

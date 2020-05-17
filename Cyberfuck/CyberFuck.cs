@@ -54,24 +54,24 @@ namespace Cyberfuck
 			//Host(null);
 		}
 
-		public static void Start(string level)
+		public static void Start(string level, string name)
 		{
-			Screen = new GameScreen(level);
+			Screen = new GameScreen(level, name);
 			((GameScreen)Screen).World.NetType = NetType.Single;
 		}
-		public static void Join(string ip, int port)
+		public static void Join(string ip, int port, string name)
 		{
-			netPlay = new NetClient(ip, port);
+			netPlay = new NetClient(ip, port, name);
             ((NetClient)netPlay).OnConnected += world =>
             {
                 Screen = new GameScreen(world);
             };
 		}
 
-        public static void Host(string level)
+        public static void Host(string level, string name)
 		{
 			if (!(Screen is GameScreen))
-				Screen = new GameScreen(level);
+				Screen = new GameScreen(level, name);
 			((GameScreen)Screen).World.NetType = NetType.Server;
 			netPlay = new NetServer(((GameScreen)Screen).World, 1234);
 		}

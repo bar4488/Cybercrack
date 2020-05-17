@@ -56,12 +56,12 @@ namespace Cyberfuck.Data
         }
         public static bool operator ==(PlayerData d, PlayerData o)
         {
-            return d.Entity == o.Entity && d.flags.Encode() == o.flags.Encode();
+            return d.Entity == o.Entity && d.flags.Encode() == o.flags.Encode() && d.ID == o.ID;
         }
 
         public static bool operator !=(PlayerData d, PlayerData o)
         {
-            return !(d.Entity==o.Entity);
+            return !(d==o);
         }
         public static bool operator ==(PlayerData d, Player o)
         {
@@ -70,7 +70,7 @@ namespace Cyberfuck.Data
 
         public static bool operator !=(PlayerData d, Player o)
         {
-            return !(d==new PlayerData(o));
+            return !(d==o);
         }
 
         public override bool Equals(object obj)
