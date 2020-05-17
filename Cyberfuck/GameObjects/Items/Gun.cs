@@ -37,7 +37,7 @@ namespace Cyberfuck.GameObjects.Items
         {
             Vector2 mouseDirection = mousePosition - new Vector2(Holder.Position.X, Holder.Position.Y);
             mouseDirection.Normalize();
-            Humper.IBox box = world.CollisionWorld.Create(Holder.Position.X, Holder.Position.Y, ShotTexture.Width, ShotTexture.Height);
+            Humper.IBox box = world.CollisionWorld.Create(Holder.Position.X+Holder.Width/2, Holder.Position.Y+Holder.Height/2, ShotTexture.Width, ShotTexture.Height);
             shots.Add(new Tuple<double, VelocityObject>(gameTime.TotalGameTime.TotalMilliseconds, new VelocityObject(box, Vector2.Normalize(mouseDirection) * SHOT_SPEED)));
         }
 

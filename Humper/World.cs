@@ -24,9 +24,12 @@
 
 		public IBox Create(float x, float y, float width, float height)
 		{
-			var box = new Box(this, x, y, width, height);
-			this.grid.Add(box);
-			return box;
+			lock (this.grid)
+			{
+                var box = new Box(this, x, y, width, height);
+                this.grid.Add(box);
+                return box;
+			}
 		}
 
 		public IEnumerable<IBox> Find(float x, float y, float w, float h)
@@ -44,12 +47,18 @@
 
 		public bool Remove(IBox box)
 		{
-			return this.grid.Remove(box);
+			lock (this.grid)
+			{
+                return this.grid.Remove(box);
+			}
 		}
 
 		public void Update(IBox box, RectangleF from)
 		{
-			this.grid.Update(box, from);
+			lock (this.grid)
+			{
+                this.grid.Update(box, from);
+			}
 		}
 
 		#endregion
