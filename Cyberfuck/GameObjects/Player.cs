@@ -105,6 +105,11 @@ namespace Cyberfuck.GameObjects
             lastGameTime = gameTime;
             if (dead)
                 return;
+            if(Position.Y > world.Map.Height * Constants.TILE_SIZE)
+            {
+                Kill(-2);
+                return;
+            }
             oldPlayer = new PlayerData(this);
             InventoryData oldInventory = new InventoryData(this);
             //save the player data in order to compare changes after update
@@ -315,14 +320,14 @@ namespace Cyberfuck.GameObjects
             if (Input.KeyWentDown(Keys.D0))
                 selectedItem = 9;
         }
-        public void Damage(int amount, DamageReason reason, string other)
+        public void Damage(int amount, DamageReason reason, string message, int otherId)
         {
             health -= amount;
             // if server, send new health to all players
             // not needed
             
             if (health < 0)
-                Kill();
+                Kill(otherId);
         }
         public void PickItem(DroppedItem item)
         {
@@ -336,12 +341,16 @@ namespace Cyberfuck.GameObjects
                 }
             }
         }
-        public void Kill()
+        public void Kill(int otherId)
         {
             if (dead)
                 return;
+            world.kills[otherId] = world.kills.ContainsKey(otherId) ? world.kills[otherId] + 1 : 1;
+            world.deaths[ID] = world.deaths.ContainsKey(ID) ? world.deaths[ID] + 1 : 1;
             if (world.NetType == NetType.Server)
-                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, -1, new PlayerEventData(ID, EventType.Kill));
+            {
+                CyberFuck.netPlay.SendMessage(MessageContentType.PlayerEvent, -1, new PlayerEventData(ID, otherId, EventType.Kill));
+            }
             dead = true;
             // if server send that the player has died
             world.CollisionWorld.Remove(box);

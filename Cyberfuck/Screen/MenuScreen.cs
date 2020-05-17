@@ -26,6 +26,10 @@ namespace Cyberfuck.Screen
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+            Rectangle mainFrame = new Rectangle(0, 0, CyberFuck.graphics.GraphicsDevice.Viewport.Width, CyberFuck.graphics.GraphicsDevice.Viewport.Height);
+            spriteBatch.Begin();
+            spriteBatch.Draw(CyberFuck.GetTexture("menu-background"), mainFrame, Color.White);
+            spriteBatch.End();
             spriteBatch.Begin();
             int count = 0;
             //while(offset + 70 * (choice % texts.Count - 1 - start) > CyberFuck.graphics.GraphicsDevice.Viewport.Height - 80)

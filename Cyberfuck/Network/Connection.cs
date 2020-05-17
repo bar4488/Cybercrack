@@ -105,7 +105,7 @@ namespace Cyberfuck.Network
                         break;
                     case MessageContentType.PlayerEvent:
                         PlayerEventData eventData = PlayerEventData.Decode(message.Content);
-                        HandlePlayerEvent(eventData.player, (EventType)eventData.type);
+                        HandlePlayerEvent(eventData.player, eventData.other, (EventType)eventData.type);
                         break;
                     case MessageContentType.DropItem:
                         DropItemData dropItemData = DropItemData.Decode(message.Content);
@@ -117,14 +117,14 @@ namespace Cyberfuck.Network
             }
         }
 
-        public void HandlePlayerEvent(int id, EventType eventType)
+        public void HandlePlayerEvent(int id, int otherId, EventType eventType)
         {
             Player player = world.Players[id];
             switch (eventType)
             {
                 case EventType.Kill:
                     if(!player.IsDead)
-                        player.Kill();
+                        player.Kill(otherId);
                     break;
                 default:
                     break;

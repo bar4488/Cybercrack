@@ -19,6 +19,8 @@ namespace Cyberfuck.GameWorld
         public Camera2D Camera { get; set; }
         public int MyPlayerId { get; set; }
         public Dictionary<int, Player> Players { get; set; } = new Dictionary<int, Player>();
+        public Dictionary<int, int> kills { get; set; } = new Dictionary<int, int>();
+        public Dictionary<int, int> deaths { get; set; } = new Dictionary<int, int>();
         public List<IEntity> Entities { get; set; } = new List<IEntity>();
         public List<IGameObject> GameObjects { get; set; } = new List<IGameObject>();
         public Humper.World CollisionWorld { get; set; }
@@ -175,12 +177,16 @@ namespace Cyberfuck.GameWorld
             {
                 if(player.Value.ID == MyPlayerId)
                 {
-                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Green, 0, Vector2.Zero, 0.6f, SpriteEffects.None, 0);
+                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 14 + 20 * index), Color.Green, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
                 }
                 else
                 {
-                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 14 + 20 * index), Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
                 }
+                int killCount = kills.ContainsKey(player.Value.ID) ? kills[player.Value.ID] : 0;
+                int deathCount = deaths.ContainsKey(player.Value.ID) ? deaths[player.Value.ID] : 0;
+                spriteBatch.DrawString(CyberFuck.font, killCount.ToString(), new Vector2(2, 24 + 20 * index), Color.Blue, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+                spriteBatch.DrawString(CyberFuck.font, deathCount.ToString(), new Vector2(32, 24 + 20 * index), Color.Red, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
                 spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42, 18 + 20*index, player.Value.Health * 2, 16), Color.Green);
                 spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42 + player.Value.Health * 2,  18 + 20*index, 200 - player.Value.Health * 2, 16), Color.Red);
                 index++;

@@ -94,7 +94,10 @@ namespace Cyberfuck
 		protected override void Update(GameTime gameTime)
 		{
 			Input.Update(IsActive);
-
+			if(Input.KeyWentDown(Keys.R))
+			{
+				ReloadContent();
+			}
 #if DEBUG
 			if(Input.KeyWentDown(Keys.F5))
 			{

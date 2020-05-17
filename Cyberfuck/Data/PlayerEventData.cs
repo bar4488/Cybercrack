@@ -14,22 +14,24 @@ namespace Cyberfuck.Data
     {
         public EventType type;
         public int player;
+        public int other;
         public MessageContentType ContentType => MessageContentType.PlayerEvent;
 
-        public PlayerEventData(int player, EventType type)
+        public PlayerEventData(int player, int other, EventType type)
         {
             this.player = player;
             this.type = type;
+            this.other = other;
         }
         public byte[] Encode()
         {
-            return ByteManipulation.ConvertIntsToBytes(player, (int)type);
+            return ByteManipulation.ConvertIntsToBytes(player, other, (int)type);
         }
 
         public static PlayerEventData Decode(byte[] bytes)
         {
             int[] p = ByteManipulation.ConvertBytesToInts(bytes);
-            return new PlayerEventData(p[0], (EventType)p[1]);
+            return new PlayerEventData(p[0], p[1], (EventType)p[2]);
         }
     }
 }

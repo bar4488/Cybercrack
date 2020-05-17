@@ -35,7 +35,7 @@ namespace Cyberfuck.GameObjects.Items
                 {
                     if(Holder.ID != (int)col.Other.Data)
                     {
-                        world.Players[(int)col.Other.Data].Damage(damageAmount, DamageReason.Enemy, "a gun shot you");
+                        world.Players[(int)col.Other.Data].Damage(damageAmount, DamageReason.Enemy, "a gun shot you", Holder.ID);
                         shouldRemove = true;
                     }
                 }

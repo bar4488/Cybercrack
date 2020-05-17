@@ -48,6 +48,14 @@ namespace Cyberfuck
 			base.UnloadContent();
 		}
 
+		protected void ReloadContent()
+		{
+			foreach (var k in Textures.ToList())
+			{
+				Textures[k.Key] = content.Load<Texture2D>(k.Key);
+			}
+		}
+
 		protected override bool BeginDraw()
 		{
 			GraphicsDevice.Clear(Color.CadetBlue);

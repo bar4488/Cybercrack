@@ -139,10 +139,10 @@ namespace Cyberfuck.GameWorld
                 {
                     if (tileMap[x, y] == Tile.Dirt)
                     {
-                        if (y - 1 == 0 || tileMap[x, y - 1] == Tile.Dirt)
-                        CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileDirt") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
+                        if (y == 0 || tileMap[x, y - 1] == Tile.None)
+                            CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileGrass") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
                         else
-                        CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileGrass") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
+                            CyberFuck.spriteBatch.Draw(CyberFuck.GetTexture("tileDirt") , new Rectangle(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, Constants.TILE_SIZE, Constants.TILE_SIZE), new Rectangle(0, 0, CyberFuck.GetTexture("tileDirt").Width, CyberFuck.GetTexture("tileDirt").Height), Color.White);
                     }
                 }
             }
