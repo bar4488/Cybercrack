@@ -23,6 +23,7 @@ namespace Cyberfuck.Screen
                 texts.Add(fileName);
                 CyberFuck.Logger.Log(fileName);
             }
+            texts.Add("test");
         }
         public override void Update(GameTime gameTime)
         {

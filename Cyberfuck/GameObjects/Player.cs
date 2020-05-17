@@ -24,7 +24,7 @@ namespace Cyberfuck.GameObjects
         const int MAX_SPEED = 8;
         const int FALL_SPEED = 12;
         const int GRAVITY = 1;
-        int jumpCount = 2;
+        int jumpCount = 10000;
         int id;
         bool directionRight = true;
         bool onGound = false;
@@ -282,10 +282,14 @@ namespace Cyberfuck.GameObjects
         }
         public void Use(Vector2 mousePosition)
         {
+            if (Inventory[SelectedItem] == null)
+                return;
             Inventory[SelectedItem].Use(lastGameTime, mousePosition);
         }
         public void SecondUse(Vector2 mousePosition)
         {
+            if (Inventory[SelectedItem] == null)
+                return;
             Inventory[SelectedItem].SecondUse(lastGameTime, mousePosition);
         }
         public void CheckSelectedItem()
@@ -342,16 +346,15 @@ namespace Cyberfuck.GameObjects
             // if server send that the player has died
             world.CollisionWorld.Remove(box);
             box = null;
+            if (world.NetType == NetType.Client)
+                return;
             Thread t = new Thread(() =>
             {
-                if(world.NetType != NetType.Client)
+                Thread.Sleep(1000);
+                lock (world.GameObjects)
                 {
-                    Thread.Sleep(1000);
-                    lock (world.GameObjects)
-                    {
-                        Point respawnPosition = new Point((int)world.CollisionWorld.Bounds.Width / 2, 0);
-                        Respawn(respawnPosition);
-                    }
+                    Point respawnPosition = new Point((int)world.CollisionWorld.Bounds.Width / 2, 0);
+                    Respawn(respawnPosition);
                 }
             });
             t.Start();
@@ -359,20 +362,17 @@ namespace Cyberfuck.GameObjects
 
         public void Respawn(Point position)
         {
-            lock (this)
+            if(world.NetType == NetType.Server)
+                CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, -1, new RespawnPlayerData(position.X, position.Y, ID));
+            if (box != null)
             {
-                if(world.NetType == NetType.Server)
-                    CyberFuck.netPlay.SendMessage(MessageContentType.RespawnPlayer, -1, new RespawnPlayerData(position.X, position.Y, ID));
-                if (box != null)
-                {
-                    world.CollisionWorld.Remove(box);
-                    box = null;
-                }
-                box = world.CollisionWorld.Create(position.X, position.Y, Texture.Width, Texture.Height);
-                box.AddTags(Collider.Player);
-                box.Data = id;
-                dead = false;
+                world.CollisionWorld.Remove(box);
+                box = null;
             }
+            box = world.CollisionWorld.Create(position.X, position.Y, Texture.Width, Texture.Height);
+            box.AddTags(Collider.Player);
+            box.Data = id;
+            dead = false;
             var d = new PlayerData(
                 new EntityData(
                     EntityType.Player, 
@@ -394,9 +394,7 @@ namespace Cyberfuck.GameObjects
                 throw new Exception("id doesnt match");
             if (world.NetType == NetType.Server)
                 CyberFuck.netPlay.SendMessage(MessageContentType.PlayerUpdate, ID, toApply);
-            if (world.NetType == NetType.Client)
-                dead = false;
-            else if (dead == true)
+            if (dead == true)
                 return;
             this.box.Move(toApply.Entity.Position.X, toApply.Entity.Position.Y, (c) => CollisionResponses.None);
             this.health = toApply.Entity.Health;

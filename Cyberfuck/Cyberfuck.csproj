@@ -104,6 +104,7 @@
     <Compile Include="GameObjects\Items\DetonatorGun.cs" />
     <Compile Include="GameObjects\Items\TileGun.cs" />
     <Compile Include="GameObjects\VelocityObject.cs" />
+    <Compile Include="GameWorld\WorldMap2.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Logger\ConsoleLogger.cs" />
     <Compile Include="Logger\ILogger.cs" />

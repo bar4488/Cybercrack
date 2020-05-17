@@ -139,11 +139,11 @@ namespace Cyberfuck.Network
 
         private void InitializeClientConnection(object data)
         {
+            CyberFuck.Logger.Log("Network", "initializing new client");
+            Connection conn = (Connection)data;
+            NetworkStream stream = conn.stream;
             try
             {
-                CyberFuck.Logger.Log("Network", "initializing new client");
-                Connection conn = (Connection)data;
-                NetworkStream stream = conn.stream;
                 //get the player name
                 byte[] length = { 0 };
                 stream.Read(length, 0, 1);
@@ -215,10 +215,8 @@ namespace Cyberfuck.Network
                 world.LoadPlayer(clientPlayer);
                 conn.State = ConnectionState.Connected;
             }
-            catch(Exception e)
-            {
-                CyberFuck.Logger.Log("Network", "Client connection failed - bad approval message");
-                return;
+            catch (Exception e){
+                conn.Close();
             }
         }
     }

@@ -30,6 +30,7 @@ namespace Cyberfuck
 			content = Content;
 			spriteBatch = new SpriteBatch(GraphicsDevice);
             GetTexture("player");
+			GetTexture("tileGrass");
 			GetTexture("tileDirt");
 			GetTexture("background");
 			GetTexture("shot");

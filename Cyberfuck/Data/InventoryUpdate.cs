@@ -9,6 +9,8 @@ namespace Cyberfuck.Data
 {
     public struct InventoryData : IMessageContent
     {
+        public const int ContentLength = sizeof(int) * 12;
+
         public int playerId;
         public int selectItem;
         public int[] inventory;

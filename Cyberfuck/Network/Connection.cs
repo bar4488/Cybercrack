@@ -49,6 +49,8 @@ namespace Cyberfuck.Network
         /// </summary>
         public void Update()
         {
+            if (state == ConnectionState.NotConnected)
+                return;
             NetworkMessage message;
             MessageError error;
             while((error = NetworkMessage.TryDecodeFromStream(out message, stream)) == MessageError.Success)

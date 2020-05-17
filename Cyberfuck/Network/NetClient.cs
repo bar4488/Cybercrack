@@ -114,21 +114,23 @@ namespace Cyberfuck.Network
 
         public override void SendBuffer(byte[] msg, int player)
         {
+            if (server.State == ConnectionState.NotConnected)
+                return;
             try
             {
                 server.Stream.Write(msg, 0, msg.Length);
             }
-            catch(SocketException e)
+            catch(System.IO.IOException e)
             {
                 Close(CloseReason.ServerClosed);
             }
         }
         public override void Close(CloseReason reason)
         {
-            base.Close(reason);
             server.stream.Close();
             server.conn.Close();
             server.State = ConnectionState.NotConnected;
+            base.Close(reason);
         }
         public override void Update(GameTime gameTime)
         {

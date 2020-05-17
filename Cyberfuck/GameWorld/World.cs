@@ -59,6 +59,11 @@ namespace Cyberfuck.GameWorld
             Map = new WorldMap(this, map);
             LoadWorld();
         }
+        public void LoadWorld(WorldMap map)
+        {
+            Map = map;
+            LoadWorld();
+        }
         public void LoadWorld(System.Drawing.Bitmap level)
         {
             Map = new WorldMap(this, level);
@@ -168,7 +173,14 @@ namespace Cyberfuck.GameWorld
             spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(0, 0, 255, 36 + 20 * Players.Count-1), a);
             foreach (var player in Players)
             {
-                spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+                if(player.Value.ID == MyPlayerId)
+                {
+                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Green, 0, Vector2.Zero, 0.6f, SpriteEffects.None, 0);
+                }
+                else
+                {
+                    spriteBatch.DrawString(CyberFuck.font, player.Value.Name, new Vector2(2, 18 + 20 * index), Color.Black, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+                }
                 spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42, 18 + 20*index, player.Value.Health * 2, 16), Color.Green);
                 spriteBatch.Draw(CyberFuck.GetTexture("rect"), new Rectangle(42 + player.Value.Health * 2,  18 + 20*index, 200 - player.Value.Health * 2, 16), Color.Red);
                 index++;
